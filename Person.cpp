@@ -1,25 +1,105 @@
 #include "Person.h"
 
-//func takes simbols from file to string
-/*std::string get_file_contents(const char* filename)
+void create_VAO(GLfloat* vertices, int sizeof_vertices, GLuint* indices, int sizeof_indices, float count_of_frames, float current_frame, GLuint& VAO, GLuint& VBO, GLuint& EBO)
 {
-	std::ifstream in(filename, std::ios::binary);
-	if (in)
-	{
-		std::string contents;
-		in.seekg(0, std::ios::end);
-		contents.resize(in.tellg());
-		in.seekg(0, std::ios::beg);
-		in.read(&contents[0], contents.size());
-		in.close();
-		return(contents);
-	}
-	throw(errno);
-}*/
+	//change texture coordinates for different frames
+	float frame = 1 / count_of_frames;
+	vertices[6] += frame * current_frame;
+	vertices[14] += frame * current_frame;
+	vertices[22] += frame * current_frame;
+	vertices[30] += frame * current_frame;
 
-Person::Person(const char* vertexFile, const char* fragmentFile, const char* image, float x_, float y_, float z_, float sprite_h_)
+	//bind VAO
+	glBindVertexArray(VAO);
+
+	//bind VBO and link it to VAO activated before
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof_vertices, vertices, GL_STATIC_DRAW);
+
+	//bind EBO and link it to VAO activated before
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof_indices, indices, GL_STATIC_DRAW);
+
+	//insert in vertex shader layouts of coordinates and colors from array vertices
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+
+	//activate layouts
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+
+	//unbind all elements
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void create_Texture(const char* image, GLuint& texture)
 {
+	//Texture
+	int widthImg, heightImg, numColCh;//ширина, высота в пикселах, кол-во цвет каналов картинки
+	stbi_set_flip_vertically_on_load(true);//т.к. ogl считае изобр из левого нижнего угла в правый верхний, а stb из левого верхнего в правый нижний картинка получается перевенутой, эта ф-я как бы переворачивает восприятие stb
+	unsigned char* bytes = stbi_load(image, &widthImg, &heightImg, &numColCh, 0);
+
+	glGenTextures(1, &texture);//генерируем, создаем объект текстуры, 1 - кол-во текстур, 2 - ссылочная переменная
+
+	//Назначаем текстуру текстурному блоку - это слоты для текстур, кот объединяются в связку, обычно они содержат около 16 текстур и фрагментный шейдер работает с ними одновременно
+	glActiveTexture(GL_TEXTURE0);//активируем текстурный блок, это его айди, как я понимаю в нем хранится до 16 текстур?
+	glBindTexture(GL_TEXTURE_2D, texture);//связываем (bind), делаем активной, 1 - тип, 2 - ссылка на текстуру
+
+	//Настраиваем параметры исп-я текстуры
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);//Как картинка будет обрабатываться при увеличении или уменьшении, GL_NEAREST - сохраняет все пиксели как есть это предпочтительнее с пиксельной графикой,
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);//GL_LINEAR - создает новые пиксели  в соответствии с соседними, картинка более размытая, GL_TEXTURE_MIN_FILTER - при уменьшении, GL_TEXTURE_MAG_FILTER - пр увеличении
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);//как текстура будет повторяться по осям, GL_TEXTURE_WRAP_: S - ось X, Т - ось Y, R - ось Z
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);//GL_REPEAT - просто повторяет, GL_MIRRORED_REPEAT - повторяет но каждый раз отражает-переворачивает его
+
+	//Генерируем текстуру
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImg, heightImg, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);//1 - тип, 3 - тип цветных каналов кот мы хотим увидеть
+//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthImg, heightImg, 0, GL_RGB, GL_UNSIGNED_BYTE, bytes);//1 - тип, 3 - тип цветных каналов кот мы хотим увидеть
+
+	glGenerateMipmap(GL_TEXTURE_2D);//генерация mit-карты, это версии той же текстуры с меньшим разрешением, кот исп например если текстура далеко
+
+	stbi_image_free(bytes);//удаляем ненужный массив
+	glBindTexture(GL_TEXTURE_2D, 0);//отвязываем текстуру чтобы случайно не повредить
+}
+
+void generate_VAO_VBO(GLuint * VAO, GLuint * VBO, int size)
+{
+	for (int i = 0; i < size; i++) glGenVertexArrays(1, &VAO[i]);
+	for (int i = 0; i < size; i++) glGenBuffers(1, &VBO[i]);
+}
+
+void configure_VAO_VBO(GLfloat * vertices, int sizeof_vertices, GLuint * indices, int sizeof_indices, GLuint* VAO, GLuint* VBO, float count_frames, GLuint& EBO, bool direction)
+{
+	float frame = 1.0f / count_frames;
+
+	if (direction)
+	{
+		vertices[6] = 0.0f;
+		vertices[14] = 0.0f;
+		vertices[22] = frame;
+		vertices[30] = frame;
+	}
+	else {
+		vertices[6] = frame;
+		vertices[14] = frame;
+		vertices[22] = 0.0f;
+		vertices[30] = 0.0f;
+	}
+	//create VAO, VBO, EBO objects in vector arrays with parameters
+	for (int i = 0; i < count_frames; i++)
+		create_VAO(vertices, sizeof_vertices, indices, sizeof_indices, count_frames, float(i), VAO[i], VBO[i], EBO);
+}
+
+/*Person::Person(const char* vertexFile, const char* fragmentFile, const char* image, float x_, float y_, float z_, float sprite_h_)
+{
+	//change global height of poligon
 	vertices[10] = vertices[18] = sprite_h_;
+
+	direction = true;
 
 	std::string vertexCode = get_file_contents(vertexFile);//func takes simbols from file to string
 	std::string fragmentCode = get_file_contents(fragmentFile);//func takes simbols from file to string
@@ -50,86 +130,75 @@ Person::Person(const char* vertexFile, const char* fragmentFile, const char* ima
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 
-	//create VAO, VBO, EBO
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
+	//generate VAO objects in vector array
+	generate_VAO_VBO(VAO_1, VBO_1, 1);
+	generate_VAO_VBO(VAO_2, VBO_2, 2);
+	generate_VAO_VBO(VAO_4, VBO_4, 4);
+	generate_VAO_VBO(VAO_5, VBO_5, 5);
+	generate_VAO_VBO(VAO_6, VBO_6, 6);
+	generate_VAO_VBO(VAO_8, VBO_8, 8);
+	generate_VAO_VBO(VAO_10, VBO_10, 10);
+
+	//generate EBO obj
 	glGenBuffers(1, &EBO);
 
-	//bind VAO
-	glBindVertexArray(VAO);
+	//block of creating VAO, VBO, EBO objects in vector arrays with parameters
+	//reset texture coordinates for each EBO
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_1, VBO_1, 1, EBO);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_2, VBO_2, 2, EBO);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_4, VBO_4, 4, EBO);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_5, VBO_5, 5, EBO);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_6, VBO_6, 6, EBO);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_8, VBO_8, 8, EBO);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_10, VBO_10, 10, EBO);
 
-	//bind VBO and link it to VAO activated before
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-	//bind EBO and link it to VAO activated before
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-	//insert in vertex shader layouts of coordinates and colors from array vertices
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-
-	//activate layouts
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-
-	//unbind all elements
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	//matrix of position tile, and changing to needed position here
 	view = glm::mat4(1.0f);
 	x = x_; y = y_; z = z_;
 	view = glm::translate(view, glm::vec3(x, y, z));
 
-	//Texture
-	int widthImg, heightImg, numColCh;//ширина, высота в пикселах, кол-во цвет каналов картинки
-	stbi_set_flip_vertically_on_load(true);//т.к. ogl считае изобр из левого нижнего угла в правый верхний, а stb из левого верхнего в правый нижний картинка получается перевенутой, эта ф-я как бы переворачивает восприятие stb
-	unsigned char* bytes = stbi_load(image, &widthImg, &heightImg, &numColCh, 0);
+	//create texture object
+	create_Texture(image, texture);
 
-	glGenTextures(1, &texture);//генерируем, создаем объект текстуры, 1 - кол-во текстур, 2 - ссылочная переменная
+}*/
 
-	//Назначаем текстуру текстурному блоку - это слоты для текстур, кот объединяются в связку, обычно они содержат около 16 текстур и фрагментный шейдер работает с ними одновременно
-	glActiveTexture(GL_TEXTURE0);//активируем текстурный блок, это его айди, как я понимаю в нем хранится до 16 текстур?
-	glBindTexture(GL_TEXTURE_2D, texture);//связываем (bind), делаем активной, 1 - тип, 2 - ссылка на текстуру
+void Person::change_Height_Sprite(float sprite_h_)
+{
+	//change global height of poligon
+	sprite_h = sprite_h_;
 
-	//Настраиваем параметры исп-я текстуры
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);//Как картинка будет обрабатываться при увеличении или уменьшении, GL_NEAREST - сохраняет все пиксели как есть это предпочтительнее с пиксельной графикой,
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);//GL_LINEAR - создает новые пиксели  в соответствии с соседними, картинка более размытая, GL_TEXTURE_MIN_FILTER - при уменьшении, GL_TEXTURE_MAG_FILTER - пр увеличении
+	//change global height of poligon
+	vertices[10] = vertices[18] = sprite_h;
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);//как текстура будет повторяться по осям, GL_TEXTURE_WRAP_: S - ось X, Т - ось Y, R - ось Z
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);//GL_REPEAT - просто повторяет, GL_MIRRORED_REPEAT - повторяет но каждый раз отражает-переворачивает его
-
-	//Генерируем текстуру
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, widthImg, heightImg, 0, GL_RGBA, GL_UNSIGNED_BYTE, bytes);//1 - тип, 3 - тип цветных каналов кот мы хотим увидеть
-//	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthImg, heightImg, 0, GL_RGB, GL_UNSIGNED_BYTE, bytes);//1 - тип, 3 - тип цветных каналов кот мы хотим увидеть
-
-	glGenerateMipmap(GL_TEXTURE_2D);//генерация mit-карты, это версии той же текстуры с меньшим разрешением, кот исп например если текстура далеко
-
-	stbi_image_free(bytes);//удаляем ненужный массив
-	glBindTexture(GL_TEXTURE_2D, 0);//отвязываем текстуру чтобы случайно не повредить
-
-
-	//текстурная координата идет от 0,0 нижний левый угол, 1,1 верхний правый, если задать координаты больше 1, то изобр будет повторяться
-
-	//Юниформа сообщает ogl какой модуль текстуры он должен использовать
-	//загружаем из юниформы текстурные координаты, которые загружены из масссива в вертексный, потом в фрагментный, потом в юниформу tex0
-	tex0Uni = glGetUniformLocation(shaderProgram, "tex0");//создаем перем в кот будем хранить указатель на переменную uniform
-	glUseProgram(shaderProgram);
-	glUniform1i(tex0Uni, 0);//загружаем в юниформу ID текстурного блока с картинкой (тот, что активировали ранее glActiveTexture(GL_TEXTURE0);)
-
-	//End Texture
+	//block of creating VAO, VBO, EBO objects in vector arrays with parameters
+	//reset texture coordinates for each EBO
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_1, VBO_1, 1, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_2, VBO_2, 2, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_4, VBO_4, 4, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_5, VBO_5, 5, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_6, VBO_6, 6, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_8, VBO_8, 8, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_10, VBO_10, 10, EBO, direction);
 }
 
-void Person::Draw(Camera& camera)
+void Person::change_Direction(bool direction_)
+{
+	direction = direction_;
+
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_1, VBO_1, 1, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_2, VBO_2, 2, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_4, VBO_4, 4, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_5, VBO_5, 5, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_6, VBO_6, 6, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_8, VBO_8, 8, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_10, VBO_10, 10, EBO, direction);
+}
+
+void Person::Draw(Camera & camera, float time_)
 {
 	//activate shader programm
 	glUseProgram(shaderProgram);
-	
 
 	//load to vertex uniform current position of tile
 	int viewLoc = glGetUniformLocation(shaderProgram, "view");
@@ -139,8 +208,37 @@ void Person::Draw(Camera& camera)
 	camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
 
 	//bind VAO
-	glBindVertexArray(VAO);
+	//glBindVertexArray(VAO);
+
+	//time is time = float(glfwGetTime());
+/*	int time = int(time_ * 100) % (25 * int(VAO_8.size()));
+	
+	//bind VAO
+	if (time >= 0 && time <= 24) glBindVertexArray(VAO_8[0]);
+	if (time >= 25 && time <= 49) glBindVertexArray(VAO_8[1]);
+	if (time >= 50 && time <= 74) glBindVertexArray(VAO_8[2]);
+	if (time >= 75 && time <= 99) glBindVertexArray(VAO_8[3]);
+	if (time >= 100 && time <= 124) glBindVertexArray(VAO_8[4]);
+	if (time >= 125 && time <= 149) glBindVertexArray(VAO_8[5]);
+	if (time >= 150 && time <= 174) glBindVertexArray(VAO_8[6]);
+	if (time >= 175 && time <= 199) glBindVertexArray(VAO_8[7]);*/
+
+	//time is time = float(glfwGetTime());
+	int time = int(time_ * 100) % (25 * sizeof(VAO_6) / sizeof(int));
+
+	//bind VAO
+	if (time >= 0 && time <= 24) glBindVertexArray(VAO_6[0]);
+	if (time >= 25 && time <= 49) glBindVertexArray(VAO_6[1]);
+	if (time >= 50 && time <= 74) glBindVertexArray(VAO_6[2]);
+	if (time >= 75 && time <= 99) glBindVertexArray(VAO_6[3]);
+	if (time >= 100 && time <= 124) glBindVertexArray(VAO_6[4]);
+	if (time >= 125 && time <= 149) glBindVertexArray(VAO_6[5]);
+
 	//bind texture
+	//загружаем из юниформы текстурные координаты, которые загружены из масссива в вертексный, потом в фрагментный, потом в юниформу tex0
+	tex0Uni = glGetUniformLocation(shaderProgram, "tex0");//создаем перем в кот будем хранить указатель на переменную uniform
+	glUseProgram(shaderProgram);
+	glUniform1i(tex0Uni, 0);//загружаем в юниформу ID текстурного блока с картинкой (тот, что активировали ранее glActiveTexture(GL_TEXTURE0);)
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	//draw element
@@ -150,8 +248,20 @@ void Person::Draw(Camera& camera)
 Person::~Person()
 {
 	//delete all elements
-	glDeleteVertexArrays(1, &VAO);
-	glDeleteBuffers(1, &VBO);
+	for (int i = 0; i < sizeof(VAO_1); i++) glDeleteVertexArrays(1, &VAO_1[i]);
+	for (int i = 0; i < sizeof(VBO_1); i++) glDeleteBuffers(1, &VBO_1[i]);
+	for (int i = 0; i < sizeof(VAO_2); i++) glDeleteVertexArrays(1, &VAO_2[i]);
+	for (int i = 0; i < sizeof(VBO_2); i++) glDeleteBuffers(1, &VBO_2[i]);
+	for (int i = 0; i < sizeof(VAO_4); i++) glDeleteVertexArrays(1, &VAO_4[i]);
+	for (int i = 0; i < sizeof(VBO_4); i++) glDeleteBuffers(1, &VBO_4[i]);
+	for (int i = 0; i < sizeof(VAO_5); i++) glDeleteVertexArrays(1, &VAO_5[i]);
+	for (int i = 0; i < sizeof(VBO_5); i++) glDeleteBuffers(1, &VBO_5[i]);
+	for (int i = 0; i < sizeof(VAO_6); i++) glDeleteVertexArrays(1, &VAO_6[i]);
+	for (int i = 0; i < sizeof(VBO_6); i++) glDeleteBuffers(1, &VBO_6[i]);
+	for (int i = 0; i < sizeof(VAO_8); i++) glDeleteVertexArrays(1, &VAO_8[i]);
+	for (int i = 0; i < sizeof(VBO_8); i++) glDeleteBuffers(1, &VBO_8[i]);
+	for (int i = 0; i < sizeof(VAO_10); i++) glDeleteVertexArrays(1, &VAO_10[i]);
+	for (int i = 0; i < sizeof(VBO_10); i++) glDeleteBuffers(1, &VBO_10[i]);
 	glDeleteBuffers(1, &EBO);
 	glDeleteProgram(shaderProgram);
 	glDeleteTextures(1, &texture);
