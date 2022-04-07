@@ -1,23 +1,26 @@
 #include "Camera.h"
 
-Camera::Camera(int width, int height, glm::vec3 position)
+Camera::Camera(int width_, int height_, glm::vec3 position, float FOVdeg, float nearPlane, float farPlane)
 {
-	Camera::width = width;
-	Camera::height = height;
+	width = width_;
+	height = height_;
 	Position = position;
+
+	projection = glm::perspective(glm::radians(FOVdeg), (float)(width / height), nearPlane, farPlane);//вычисл перспективу
 }
 
-void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, GLuint& shaderProgram, const char* uniform)
+//void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, GLuint& shaderProgram, const char* uniform)
+void Camera::Matrix(GLuint& shaderProgram, const char* uniform)
 {
 	//Обязат иниц матрицы единичными значениями
 	glm::mat4 view = glm::mat4(1.0f);
-	glm::mat4 projection = glm::mat4(1.0f);
+//	glm::mat4 projection = glm::mat4(1.0f);
 
-	view = glm::lookAt(Position, Position + Orientation, Up);//ф-я загруж позицию куда хотим посмотреть, 1 - наша позиция, 
+	view = glm::lookAt(Position, Position + Orientation, Up);//ф-я загруж позицию куда хотим посмотреть, 1 - наша позиция,
 		//2 - куда хотим посмотреть, тут работает сложение векторов и единичные вектора.
 		//3 - вектор вверх, Orientation вектор всегда единичный и его исп как вектор на кот хотим посмотреть
 
-	projection = glm::perspective(glm::radians(FOVdeg), (float)(width / height), nearPlane, farPlane);//вычисл перспективу
+//	projection = glm::perspective(glm::radians(FOVdeg), (float)(width / height), nearPlane, farPlane);//вычисл перспективу
 
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, uniform), 1, GL_FALSE, glm::value_ptr(projection * view));//экспортируем матрицу в vertex shader ч/з uniform, матрицы перемноженные
 }

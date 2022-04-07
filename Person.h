@@ -21,13 +21,6 @@
 class Person
 {
 public:
-/*	GLfloat vertices[32] =
-	{	//	COORDINATES		/		COLORS					//	Texture coordinates
-		-0.5f,  0.0f,  0.0f,		1.0f, 0.0f, 0.0f,		0.0f, 0.0f,
-		-0.5f,  0.0f,  1.0f,		0.0f, 1.0f, 0.0f,		0.0f, 1.0f,
-		 0.5f,  0.0f,  1.0f,		0.0f, 0.0f, 1.0f,		1.0f, 1.0f,
-		 0.5f,  0.0f,  0.0f,		1.0f, 1.0f, 0.0f,		1.0f, 0.0f,
-	};*/
 	GLfloat vertices[32] =
 	{	//	COORDINATES		/		COLORS					//	Texture coordinates
 		-0.5f,  0.0f,  0.0f,		1.0f, 0.0f, 0.0f,		1.0f, 0.0f,
@@ -49,17 +42,23 @@ public:
 
 	GLuint VAO_1[1];
 	GLuint VAO_2[2];
+	GLuint VAO_3[3];
 	GLuint VAO_4[4];
 	GLuint VAO_5[5];
 	GLuint VAO_6[6];
+	GLuint VAO_7[7];
 	GLuint VAO_8[8];
+	GLuint VAO_9[9];
 	GLuint VAO_10[10];
 	GLuint VBO_1[1];
 	GLuint VBO_2[2];
+	GLuint VBO_3[3];
 	GLuint VBO_4[4];
 	GLuint VBO_5[5];
 	GLuint VBO_6[6];
+	GLuint VBO_7[7];
 	GLuint VBO_8[8];
+	GLuint VBO_9[9];
 	GLuint VBO_10[10];
 
 	GLuint EBO;
@@ -77,6 +76,9 @@ public:
 
 	bool direction;
 
+	bool walk;
+	float speed_move;
+
 //	Person(const char* vertexFile, const char* fragmentFile, const char* image, float x_, float y_, float z_, float sprite_h_);
 	virtual ~Person();
 
@@ -84,6 +86,14 @@ public:
 	void change_Height_Sprite(float sprite_h_);
 
 	void change_Direction(bool direction_);
+
+	void Move(float x_, float y_, float z_);
+
+	//bind texture
+	void bind_Texture(GLuint& texture_);
+
+	//bind VAO
+	void bind_VAO(int frame_milliseconds_, float time, GLuint* VAO, int size_VAO, GLuint& texture_);
 
 	virtual void Draw(Camera& camera, float time_);
 

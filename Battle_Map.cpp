@@ -24,6 +24,11 @@ Battle_Map::Battle_Map(int width, int height)
 				case 'G': map[i].push_back(new Tile("Tile.vert", "Tile.frag", "Textures/floor.png", float(j), -float(i), 0)); break;
 				case 'F': map[i].push_back(new Tile("Tile.vert", "Tile.frag", "Textures/fire_floor.png", float(j), -float(i), 0)); break;
 			}
+
+			//ON or OFF texture jr color of object 
+			/*GLuint tex_or_clr = glGetUniformLocation(map[i][j]->shaderProgram, "tex_or_clr");
+			glUseProgram(map[i][j]->shaderProgram);
+			glUniform1i(tex_or_clr, 1);*/
 		}
 }
 

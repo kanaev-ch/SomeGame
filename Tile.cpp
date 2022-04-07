@@ -163,7 +163,8 @@ void Tile::Draw(Camera & camera)
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));	
 
 	//aplying camera uniform fo look at
-	camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
+	//camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
+	camera.Matrix(shaderProgram, "camMatrix");
 
 	//bind texture
 	glBindTexture(GL_TEXTURE_2D, texture);

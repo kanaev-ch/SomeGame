@@ -4,10 +4,13 @@ void create_VAO(GLfloat* vertices, int sizeof_vertices, GLuint* indices, int siz
 {
 	//change texture coordinates for different frames
 	float frame = 1 / count_of_frames;
-	vertices[6] += frame * current_frame;
-	vertices[14] += frame * current_frame;
-	vertices[22] += frame * current_frame;
-	vertices[30] += frame * current_frame;
+	if (current_frame != 0)
+	{
+		vertices[6] += frame;
+		vertices[14] += frame;
+		vertices[22] += frame;
+		vertices[30] += frame;
+	}
 
 	//bind VAO
 	glBindVertexArray(VAO);
@@ -133,10 +136,13 @@ void configure_VAO_VBO(GLfloat * vertices, int sizeof_vertices, GLuint * indices
 	//generate VAO objects in vector array
 	generate_VAO_VBO(VAO_1, VBO_1, 1);
 	generate_VAO_VBO(VAO_2, VBO_2, 2);
+	generate_VAO_VBO(VAO_3, VBO_3, 3);
 	generate_VAO_VBO(VAO_4, VBO_4, 4);
 	generate_VAO_VBO(VAO_5, VBO_5, 5);
 	generate_VAO_VBO(VAO_6, VBO_6, 6);
+	generate_VAO_VBO(VAO_7, VBO_7, 7);
 	generate_VAO_VBO(VAO_8, VBO_8, 8);
+	generate_VAO_VBO(VAO_9, VBO_9, 9);
 	generate_VAO_VBO(VAO_10, VBO_10, 10);
 
 	//generate EBO obj
@@ -144,18 +150,21 @@ void configure_VAO_VBO(GLfloat * vertices, int sizeof_vertices, GLuint * indices
 
 	//block of creating VAO, VBO, EBO objects in vector arrays with parameters
 	//reset texture coordinates for each EBO
-	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_1, VBO_1, 1, EBO);
-	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_2, VBO_2, 2, EBO);
-	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_4, VBO_4, 4, EBO);
-	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_5, VBO_5, 5, EBO);
-	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_6, VBO_6, 6, EBO);
-	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_8, VBO_8, 8, EBO);
-	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_10, VBO_10, 10, EBO);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_1, VBO_1, 1, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_2, VBO_2, 2, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_3, VBO_3, 3, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_4, VBO_4, 4, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_5, VBO_5, 5, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_6, VBO_6, 6, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_7, VBO_7, 7, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_8, VBO_8, 8, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_9, VBO_9, 9, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_10, VBO_10, 10, EBO, direction);
 
 
 	//matrix of position tile, and changing to needed position here
 	view = glm::mat4(1.0f);
-	x = x_; y = y_; z = z_;
+	x = x_; y = y_ * -1; z = z_;
 	view = glm::translate(view, glm::vec3(x, y, z));
 
 	//create texture object
@@ -175,10 +184,13 @@ void Person::change_Height_Sprite(float sprite_h_)
 	//reset texture coordinates for each EBO
 	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_1, VBO_1, 1, EBO, direction);
 	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_2, VBO_2, 2, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_3, VBO_3, 3, EBO, direction);
 	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_4, VBO_4, 4, EBO, direction);
 	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_5, VBO_5, 5, EBO, direction);
 	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_6, VBO_6, 6, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_7, VBO_7, 7, EBO, direction);
 	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_8, VBO_8, 8, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_9, VBO_9, 9, EBO, direction);
 	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_10, VBO_10, 10, EBO, direction);
 }
 
@@ -188,11 +200,91 @@ void Person::change_Direction(bool direction_)
 
 	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_1, VBO_1, 1, EBO, direction);
 	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_2, VBO_2, 2, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_3, VBO_3, 3, EBO, direction);
 	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_4, VBO_4, 4, EBO, direction);
 	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_5, VBO_5, 5, EBO, direction);
 	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_6, VBO_6, 6, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_7, VBO_7, 7, EBO, direction);
 	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_8, VBO_8, 8, EBO, direction);
+	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_9, VBO_9, 9, EBO, direction);
 	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_10, VBO_10, 10, EBO, direction);
+}
+
+void Person::Move(float x_, float y_, float z_)
+{
+	view = glm::mat4(1.0f);
+	if (x != x_)
+	{
+		walk = true;
+		if (x < x_)
+		{
+			x += speed_move;
+			change_Direction(false);
+			if (x > x_)
+			{
+				x = x_;
+				walk = false;
+				change_Direction(true);
+			}
+		}
+		else {
+			x -= speed_move;
+			if (x < x_)
+			{
+				x = x_;
+				walk = false;
+			}
+		}
+	}
+
+	float y__ = y_ * -1;
+	view = glm::mat4(1.0f);
+	if (y != y__)
+	{
+		walk = true;
+		if (y < y__)
+		{
+			y += speed_move;
+			if (y > y__)
+			{
+				y = y__;
+				walk = false;
+			}
+		}
+		else {
+			y -= speed_move;
+			if (y < y__)
+			{
+				y = y__;
+				walk = false;
+			}
+		}
+	}
+
+	view = glm::translate(view, glm::vec3(x, y, z));
+}
+void Person::bind_Texture(GLuint& texture_)
+{
+	//bind texture
+	glBindTexture(GL_TEXTURE_2D, texture_);
+}
+
+
+void Person::bind_VAO(int frame_milliseconds_, float time_, GLuint * VAO, int size_VAO, GLuint& texture_)
+{
+	int frame_milliseconds = frame_milliseconds_;
+	int frame_time_counter = 0;
+	int time = int(time_ * 100) % (frame_milliseconds * size_VAO);
+
+	//bind VAO
+	for (int i = 0; i < size_VAO; i++)
+	{
+		if (time >= frame_time_counter && time <= frame_time_counter + frame_milliseconds) glBindVertexArray(VAO[i]);
+		frame_time_counter += frame_milliseconds;
+	}
+
+	//bind texture
+	bind_Texture(texture_);
 }
 
 void Person::Draw(Camera & camera, float time_)
@@ -205,7 +297,8 @@ void Person::Draw(Camera & camera, float time_)
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
 	//aplying camera uniform fo look at
-	camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
+	//camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
+	camera.Matrix(shaderProgram, "camMatrix");
 
 	//bind VAO
 	//glBindVertexArray(VAO);
@@ -252,14 +345,20 @@ Person::~Person()
 	for (int i = 0; i < sizeof(VBO_1); i++) glDeleteBuffers(1, &VBO_1[i]);
 	for (int i = 0; i < sizeof(VAO_2); i++) glDeleteVertexArrays(1, &VAO_2[i]);
 	for (int i = 0; i < sizeof(VBO_2); i++) glDeleteBuffers(1, &VBO_2[i]);
+	for (int i = 0; i < sizeof(VAO_3); i++) glDeleteVertexArrays(1, &VAO_3[i]);
+	for (int i = 0; i < sizeof(VBO_3); i++) glDeleteBuffers(1, &VBO_3[i]);
 	for (int i = 0; i < sizeof(VAO_4); i++) glDeleteVertexArrays(1, &VAO_4[i]);
 	for (int i = 0; i < sizeof(VBO_4); i++) glDeleteBuffers(1, &VBO_4[i]);
 	for (int i = 0; i < sizeof(VAO_5); i++) glDeleteVertexArrays(1, &VAO_5[i]);
 	for (int i = 0; i < sizeof(VBO_5); i++) glDeleteBuffers(1, &VBO_5[i]);
 	for (int i = 0; i < sizeof(VAO_6); i++) glDeleteVertexArrays(1, &VAO_6[i]);
 	for (int i = 0; i < sizeof(VBO_6); i++) glDeleteBuffers(1, &VBO_6[i]);
+	for (int i = 0; i < sizeof(VAO_7); i++) glDeleteVertexArrays(1, &VAO_7[i]);
+	for (int i = 0; i < sizeof(VBO_7); i++) glDeleteBuffers(1, &VBO_7[i]);
 	for (int i = 0; i < sizeof(VAO_8); i++) glDeleteVertexArrays(1, &VAO_8[i]);
 	for (int i = 0; i < sizeof(VBO_8); i++) glDeleteBuffers(1, &VBO_8[i]);
+	for (int i = 0; i < sizeof(VAO_9); i++) glDeleteVertexArrays(1, &VAO_9[i]);
+	for (int i = 0; i < sizeof(VBO_9); i++) glDeleteBuffers(1, &VBO_9[i]);
 	for (int i = 0; i < sizeof(VAO_10); i++) glDeleteVertexArrays(1, &VAO_10[i]);
 	for (int i = 0; i < sizeof(VBO_10); i++) glDeleteBuffers(1, &VBO_10[i]);
 	glDeleteBuffers(1, &EBO);
