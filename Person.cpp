@@ -270,73 +270,36 @@ void Person::bind_Texture(GLuint& texture_)
 }
 
 
-void Person::bind_VAO(int frame_milliseconds_, float time_, GLuint * VAO, int size_VAO, GLuint& texture_)
+int Person::bind_VAO(int frame_milliseconds_, float time_, GLuint * VAO, int size_VAO, GLuint& texture_)
 {
+	int i = 0;
 	int frame_milliseconds = frame_milliseconds_;
 	int frame_time_counter = 0;
 	int time = int(time_ * 100) % (frame_milliseconds * size_VAO);
 
 	//bind VAO
-	for (int i = 0; i < size_VAO; i++)
+	for (i = 0; i < size_VAO; i++)
 	{
-		if (time >= frame_time_counter && time <= frame_time_counter + frame_milliseconds) glBindVertexArray(VAO[i]);
+		if (time >= frame_time_counter && time <= frame_time_counter + frame_milliseconds)
+		{
+			glBindVertexArray(VAO[i]);
+			break;
+		}
 		frame_time_counter += frame_milliseconds;
 	}
 
 	//bind texture
 	bind_Texture(texture_);
+	return i;
 }
 
-void Person::Draw(Camera & camera, float time_)
+void Person::Selected_Uniform_Load(bool flag)
 {
-	//activate shader programm
 	glUseProgram(shaderProgram);
-
-	//load to vertex uniform current position of tile
-	int viewLoc = glGetUniformLocation(shaderProgram, "view");
-	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-	//aplying camera uniform fo look at
-	//camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");
-	camera.Matrix(shaderProgram, "camMatrix");
-
-	//bind VAO
-	//glBindVertexArray(VAO);
-
-	//time is time = float(glfwGetTime());
-/*	int time = int(time_ * 100) % (25 * int(VAO_8.size()));
-	
-	//bind VAO
-	if (time >= 0 && time <= 24) glBindVertexArray(VAO_8[0]);
-	if (time >= 25 && time <= 49) glBindVertexArray(VAO_8[1]);
-	if (time >= 50 && time <= 74) glBindVertexArray(VAO_8[2]);
-	if (time >= 75 && time <= 99) glBindVertexArray(VAO_8[3]);
-	if (time >= 100 && time <= 124) glBindVertexArray(VAO_8[4]);
-	if (time >= 125 && time <= 149) glBindVertexArray(VAO_8[5]);
-	if (time >= 150 && time <= 174) glBindVertexArray(VAO_8[6]);
-	if (time >= 175 && time <= 199) glBindVertexArray(VAO_8[7]);*/
-
-	//time is time = float(glfwGetTime());
-	int time = int(time_ * 100) % (25 * sizeof(VAO_6) / sizeof(int));
-
-	//bind VAO
-	if (time >= 0 && time <= 24) glBindVertexArray(VAO_6[0]);
-	if (time >= 25 && time <= 49) glBindVertexArray(VAO_6[1]);
-	if (time >= 50 && time <= 74) glBindVertexArray(VAO_6[2]);
-	if (time >= 75 && time <= 99) glBindVertexArray(VAO_6[3]);
-	if (time >= 100 && time <= 124) glBindVertexArray(VAO_6[4]);
-	if (time >= 125 && time <= 149) glBindVertexArray(VAO_6[5]);
-
-	//bind texture
-	//загружаем из юниформы текстурные координаты, которые загружены из масссива в вертексный, потом в фрагментный, потом в юниформу tex0
-	tex0Uni = glGetUniformLocation(shaderProgram, "tex0");//создаем перем в кот будем хранить указатель на переменную uniform
-	glUseProgram(shaderProgram);
-	glUniform1i(tex0Uni, 0);//загружаем в юниформу ID текстурного блока с картинкой (тот, что активировали ранее glActiveTexture(GL_TEXTURE0);)
-	glBindTexture(GL_TEXTURE_2D, texture);
-
-	//draw element
-	glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
+	glUniform1i(uniSelected, flag);//загружаем в юниформу флаг подсветки текстуры
 }
+
+
 
 Person::~Person()
 {

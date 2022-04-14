@@ -2,7 +2,7 @@
 #include "Person.h"
 #include "Global_Time.h"
 
-class Vampire :
+class Lizardman :
 	public Person
 {
 public:
@@ -19,20 +19,13 @@ public:
 	enum animation_enum {stand, walk, strike_sword, injured, defends, fall, dead};
 	enum animation_enum anime;
 
-	Vampire(const char* vertexFile, const char* fragmentFile, const char*, const char*, const char*, const char*, const char*, const char*, const char*, float x_, float y_, float z_, float sprite_h_);
-	~Vampire();
+	//Lizardman(const char* vertexFile, const char* fragmentFile, const char*, const char*, const char*, const char*, const char*, const char*, const char*, float x_, float y_, float z_, float sprite_h_);
+	Lizardman(const char* vertexFile, const char* fragmentFile, const char*, const char*, const char*, const char*, const char*, const char*, const char*, float x_, float y_, float z_, float sprite_h_);
+	~Lizardman();
 
 	//func of anime
 	void Anime_Cycle(int frames, GLuint* VAO, int size_VAO, GLuint& texture);
 	void Anime_NON_Cycle(int frames, GLuint* VAO, int size_VAO, GLuint& texture);
-
-
-	/*
-	//func of anime
-	void Stand(int frames, GLuint* VAO, int size_VAO, GLuint& texture);
-	void Walk(int frames, GLuint* VAO, int size_VAO, GLuint& texture);
-	void Strike_Sword(int frames, GLuint* VAO, int size_VAO, GLuint& texture);
-	void Injured(int frames, GLuint* VAO, int size_VAO, GLuint& texture);*/
 
 	void Draw(GLFWwindow* window, Camera& camera);
 };

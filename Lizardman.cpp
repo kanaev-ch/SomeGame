@@ -1,8 +1,10 @@
-#include "Vampire.h"
+#include "Lizardman.h"
 
 
 
-Vampire::Vampire(const char* vertexFile, const char* fragmentFile, const char* image, const char* image2, const char* image3, const char* image4, const char* image5, 
+//Lizardman::Lizardman(const char* vertexFile, const char* fragmentFile, const char* image, const char* image2, const char* image3, const char* image4, const char* image5, 
+	//const char* image6, const char* image7, float x_, float y_, float z_, float sprite_h_)
+Lizardman::Lizardman(const char* vertexFile, const char* fragmentFile, const char* image, const char* image2, const char* image3, const char* image4, const char* image5, 
 	const char* image6, const char* image7, float x_, float y_, float z_, float sprite_h_)
 {
 	//change global height of poligon
@@ -13,6 +15,8 @@ Vampire::Vampire(const char* vertexFile, const char* fragmentFile, const char* i
 	speed_move = 0.001f;
 
 	anime = stand;
+
+	selected = false;
 
 	std::string vertexCode = get_file_contents(vertexFile);//func takes simbols from file to string
 	std::string fragmentCode = get_file_contents(fragmentFile);//func takes simbols from file to string
@@ -85,10 +89,14 @@ Vampire::Vampire(const char* vertexFile, const char* fragmentFile, const char* i
 	create_Texture(image5, texture_defends);
 	create_Texture(image6, texture_fall);
 	create_Texture(image7, texture_dead);
+
+	//Load adresses of uniforms
+	tex0Uni = glGetUniformLocation(shaderProgram, "tex0");//создаем перем в кот будем хранить указатель на переменную uniform
+	uniSelected = glGetUniformLocation(shaderProgram, "selected_flag");
 }
 
 
-Vampire::~Vampire()
+Lizardman::~Lizardman()
 {
 	//delete all elements
 	for (int i = 0; i < sizeof(VAO_1); i++) glDeleteVertexArrays(1, &VAO_1[i]);
@@ -122,13 +130,13 @@ Vampire::~Vampire()
 }
 
 //func anime bind by cycle
-void Vampire::Anime_Cycle(int frames, GLuint* VAO, int size_VAO, GLuint& texture)
+void Lizardman::Anime_Cycle(int frames, GLuint* VAO, int size_VAO, GLuint& texture)
 {
 	bind_VAO(frames, float(global_time), VAO, size_VAO, texture);
 }
 
 //func anime bind one time NON cycle
-void Vampire::Anime_NON_Cycle(int frames, GLuint* VAO, int size_VAO, GLuint& texture)
+void Lizardman::Anime_NON_Cycle(int frames, GLuint* VAO, int size_VAO, GLuint& texture)
 {
 	//block to anime one time, NON cycle
 	int time = int(global_time * 100) % (frames * size_VAO);
@@ -143,42 +151,7 @@ void Vampire::Anime_NON_Cycle(int frames, GLuint* VAO, int size_VAO, GLuint& tex
 	int count = bind_VAO(frames, float(global_time), VAO, size_VAO, texture);
 }
 
-/*
-//func anime bind
-void Vampire::Stand(int frames, GLuint* VAO, int size_VAO, GLuint& texture)
-{
-	bind_VAO(frames, float(global_time), VAO, size_VAO, texture);
-}
-
-//func anime bind
-void Vampire::Walk(int frames, GLuint* VAO, int size_VAO, GLuint& texture)
-{
-	bind_VAO(frames, float(global_time), VAO, size_VAO, texture);
-}
-
-//func anime bind
-void Vampire::Strike_Sword(int frames, GLuint * VAO, int size_VAO, GLuint & texture)
-{
-	int count = bind_VAO(frames, float(global_time), VAO, size_VAO, texture);
-
-	//block to anime one time, NON cycle
-	int time = int(global_time * 100) % (frames * size_VAO);
-	if (time >= frames * size_VAO - 1)
-		anime = stand;
-}
-
-//func anime bind
-void Vampire::Injured(int frames, GLuint* VAO, int size_VAO, GLuint& texture)
-{
-	int count = bind_VAO(frames, float(global_time), VAO, size_VAO, texture);
-
-	//block to anime one time, NON cycle
-	int time = int(global_time * 100) % (frames * size_VAO);
-	if (time >= frames * size_VAO - 1)
-		anime = stand;
-}*/
-
-void Vampire::Draw(GLFWwindow* window, Camera& camera)
+void Lizardman::Draw(GLFWwindow* window, Camera& camera)
 {
 	//activate shader programm
 	glUseProgram(shaderProgram);
@@ -229,27 +202,33 @@ void Vampire::Draw(GLFWwindow* window, Camera& camera)
 		global_time = 0;
 	}
 
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+	{
+		selected = true;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
+	{
+		selected = false;
+	}
+
+	//Load select or not flag in uniform for background light
+	Selected_Uniform_Load(selected);
+
 	//choose what anime play
 	switch (anime)
 	{
-	case stand:			Anime_Cycle(50, VAO_2, sizeof(VAO_2) / sizeof(int), texture_stand); break;
-	case walk:			Anime_Cycle(25, VAO_6, sizeof(VAO_6) / sizeof(int), texture_walk); break;
-	case strike_sword:	Anime_NON_Cycle(25, VAO_5, sizeof(VAO_5) / sizeof(int), texture_strike_sword); break;
+	case stand:			Anime_Cycle(50, VAO_1, sizeof(VAO_1) / sizeof(int), texture_stand); break;
+	case walk:			Anime_Cycle(25, VAO_3, sizeof(VAO_3) / sizeof(int), texture_walk); break;
+	case strike_sword:	Anime_NON_Cycle(25, VAO_3, sizeof(VAO_3) / sizeof(int), texture_strike_sword); break;
 	case injured:		Anime_NON_Cycle(50, VAO_2, sizeof(VAO_2) / sizeof(int), texture_injured); break;
-	case defends:		Anime_NON_Cycle(50, VAO_4, sizeof(VAO_4) / sizeof(int), texture_defends); break;
+	case defends:		Anime_NON_Cycle(50, VAO_2, sizeof(VAO_2) / sizeof(int), texture_defends); break;
 	case fall:			Anime_NON_Cycle(50, VAO_3, sizeof(VAO_3) / sizeof(int), texture_fall); break;
 	case dead:			Anime_Cycle(50, VAO_1, sizeof(VAO_1) / sizeof(int), texture_dead); break;
-/*	case stand: Stand(50, VAO_2, sizeof(VAO_2) / sizeof(int), texture_stand); break;
-	case walk: Walk(50, VAO_6, sizeof(VAO_6) / sizeof(int), texture_walk); break;
-	case strike_sword: Strike_Sword(50, VAO_5, sizeof(VAO_5) / sizeof(int), texture_strike_sword); break;
-	case injured: Injured(50, VAO_2, sizeof(VAO_2) / sizeof(int), texture_injured); break;*/
 	}
 
-	//bind_VAO(25, time_, VAO_5, sizeof(VAO_5) / sizeof(int), texture_strike_sword);
-	//bind_VAO(50, time_, VAO_2, sizeof(VAO_2) / sizeof(int), texture_stand);
-
 	//загружаем из юниформы текстурные координаты, которые загружены из масссива в вертексный, потом в фрагментный, потом в юниформу tex0
-	tex0Uni = glGetUniformLocation(shaderProgram, "tex0");//создаем перем в кот будем хранить указатель на переменную uniform
+	//tex0Uni = glGetUniformLocation(shaderProgram, "tex0");//создаем перем в кот будем хранить указатель на переменную uniform
 	glUseProgram(shaderProgram);
 	glUniform1i(tex0Uni, 0);//загружаем в юниформу ID текстурного блока с картинкой (тот, что активировали ранее glActiveTexture(GL_TEXTURE0);)
 

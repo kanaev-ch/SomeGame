@@ -23,10 +23,14 @@ class Person
 public:
 	GLfloat vertices[32] =
 	{	//	COORDINATES		/		COLORS					//	Texture coordinates
-		-0.5f,  0.0f,  0.0f,		1.0f, 0.0f, 0.0f,		1.0f, 0.0f,
+		/*-0.5f,  0.0f,  0.0f,		1.0f, 0.0f, 0.0f,		1.0f, 0.0f,
 		-0.5f,  0.0f,  1.0f,		0.0f, 1.0f, 0.0f,		1.0f, 1.0f,
 		 0.5f,  0.0f,  1.0f,		0.0f, 0.0f, 1.0f,		0.0f, 1.0f,
-		 0.5f,  0.0f,  0.0f,		1.0f, 1.0f, 0.0f,		0.0f, 0.0f,
+		 0.5f,  0.0f,  0.0f,		1.0f, 1.0f, 0.0f,		0.0f, 0.0f,*/
+		-0.5f,  0.0f,  0.0f,		0.8f, 0.8f, 0.8f,		1.0f, 0.0f,
+		-0.5f,  0.0f,  1.0f,		0.8f, 0.8f, 0.8f,		1.0f, 1.0f,
+		 0.5f,  0.0f,  1.0f,		0.8f, 0.8f, 0.8f,		0.0f, 1.0f,
+		 0.5f,  0.0f,  0.0f,		0.8f, 0.8f, 0.8f,		0.0f, 0.0f,
 	};
 
 	GLuint indices[6] =
@@ -65,7 +69,12 @@ public:
 
 	//for texture of tile
 	GLuint texture;
+	
+	//uniform address for texture
 	GLuint tex0Uni;
+
+	//uniform address for flag of background light if selected
+	GLuint uniSelected;
 
 	//matrix position of tile and its coordinates
 	glm::mat4 view;
@@ -74,10 +83,17 @@ public:
 	//height of sprite
 	float sprite_h;
 
+	//directoin of person, true if to left
 	bool direction;
 
+	//flag walk or not
 	bool walk;
+
+	//speed of moving person
 	float speed_move;
+
+	//flag selected person or not
+	bool selected;
 
 //	Person(const char* vertexFile, const char* fragmentFile, const char* image, float x_, float y_, float z_, float sprite_h_);
 	virtual ~Person();
@@ -93,9 +109,12 @@ public:
 	void bind_Texture(GLuint& texture_);
 
 	//bind VAO
-	void bind_VAO(int frame_milliseconds_, float time, GLuint* VAO, int size_VAO, GLuint& texture_);
+	int bind_VAO(int frame_milliseconds_, float time, GLuint* VAO, int size_VAO, GLuint& texture_);
 
-	virtual void Draw(Camera& camera, float time_);
+	//func of loading select flag in uniform for back light if Person selected
+	void Selected_Uniform_Load(bool);
+
+	virtual void Draw(GLFWwindow* window, Camera& camera) = 0;
 
 //private:
 	void compileErrors(unsigned int shader, const char* type);//проверка ошибок на комипиляцию, линковку шейдера

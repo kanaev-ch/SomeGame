@@ -1,12 +1,16 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <vector>
 
+#include "Global_Time.h"
 #include "Tile.h"
 #include "Camera.h"
 #include "Battle_Map.h"
 #include "Person.h"
 #include "Vampire.h"
+#include "Warrior.h"
+#include "Lizardman.h"
 
 int width = 1700;
 int height = 800;
@@ -39,30 +43,47 @@ int main()
 //	Person person("Tile.vert", "Tile.frag", "Textures/Vampire_walk.png", 5, 9 * (-1), 0, 2);
 //	person.change_Height_Sprite(3.0f);
 	//Vampire vampire("Tile.vert", "Tile.frag", "Textures/Vampire_walk_6.png", "Textures/Vampire_stand_10.png", 5, 9, 0, 2);
-	Vampire vampire("Tile.vert", "Tile.frag", "Textures/warrior_strike_sword_5.png", "Textures/warrior_run_6.png", 5, 9, 0, 2);
+	//Vampire vampire("Tile.vert", "Tile.frag", "Textures/warrior_stand_2.png", "Textures/warrior_run_6.png", "Textures/warrior_strike_sword_5.png", 
+		//"Textures/warrior_injured_2.png", "Textures/warrior_defends_4.png", "Textures/warrior_fall_3.png", "Textures/warrior_dead_1.png", 5, 9, 0, 2);
+/*	Warrior warrior("Person.vert", "Person.frag", "Textures/Persons/Warrior/warrior_stand_1.png", "Textures/Persons/Warrior/warrior_run_3.png", 
+		"Textures/Persons/Warrior/warrior_strike_sword_4.png", "Textures/Persons/Warrior/warrior_injured_2.png", "Textures/Persons/Warrior/warrior_defends_2.png", 
+		"Textures/Persons/Warrior/warrior_fall_3.png", "Textures/Persons/Warrior/warrior_dead_1.png", 5, 9, 0, 2);
+	Lizardman lizardman("Person.vert", "Person.frag", "Textures/Persons/Lizardman/Lizardman_stand_1.png", "Textures/Persons/Lizardman/Lizardman_run_3.png", 
+		"Textures/Persons/Lizardman/Lizardman_strike_sword_3.png", "Textures/Persons/Lizardman/Lizardman_injured_2.png", "Textures/Persons/Lizardman/Lizardman_defends_2.png", 
+		"Textures/Persons/Lizardman/Lizardman_fall_3.png", "Textures/Persons/Lizardman/Lizardman_dead_1.png", 3, 6, 0, 2);
 //	vampire.change_Height_Sprite(3.0f);
-	vampire.change_Direction(1);
+	//vampire.change_Direction(1);
+	warrior.change_Direction(1);*/
+
+	std::vector <Person*> persons;
+	persons.push_back(new Warrior("Person.vert", "Person.frag", "Textures/Persons/Warrior/warrior_stand_1.png", "Textures/Persons/Warrior/warrior_run_3.png",
+		"Textures/Persons/Warrior/warrior_strike_sword_4.png", "Textures/Persons/Warrior/warrior_injured_2.png", "Textures/Persons/Warrior/warrior_defends_2.png",
+		"Textures/Persons/Warrior/warrior_fall_3.png", "Textures/Persons/Warrior/warrior_dead_1.png", 5, 9, 0, 2));
+	persons.push_back(new Lizardman("Person.vert", "Person.frag", "Textures/Persons/Lizardman/Lizardman_stand_1.png", "Textures/Persons/Lizardman/Lizardman_run_3.png",
+		"Textures/Persons/Lizardman/Lizardman_strike_sword_3.png", "Textures/Persons/Lizardman/Lizardman_injured_2.png", "Textures/Persons/Lizardman/Lizardman_defends_2.png",
+		"Textures/Persons/Lizardman/Lizardman_fall_3.png", "Textures/Persons/Lizardman/Lizardman_dead_1.png", 5, 7, 0, 2));
+	persons[0]->change_Direction(1);
 
 	//Camera camera(width, height, glm::vec3(4.0f, -15.0f, 5.0f));
 	Camera camera(width, height, glm::vec3(4.0f, -15.0f, 5.0f), 45.0f, 0.1f, 100.0f);
 
 	Battle_Map battle_map(width, height);
 	
-	float time = 0;
+	//double time = 0;
 
 	glEnable(GL_DEPTH_TEST);
 
 
 
 	//uniform ON or OFF color or texture of object
-	GLuint tex_or_clr = glGetUniformLocation(vampire.shaderProgram, "tex_or_clr");
-	glUseProgram(vampire.shaderProgram);
-	glUniform1i(tex_or_clr, 1);
+	//GLuint tex_or_clr = glGetUniformLocation(vampire.shaderProgram, "tex_or_clr");
+	//glUseProgram(vampire.shaderProgram);
+	//glUniform1i(tex_or_clr, 1);
 
 	while (!glfwWindowShouldClose(window))//основной цикл говорит что пока окно glfw не закроется или др ф-я не скажет ему закрыться
 	{
-
-		time = float(glfwGetTime());
+		//Timer
+		last_time = glfwGetTime();
 
 		glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -76,7 +97,11 @@ int main()
 //		person.Draw(camera, time);
 
 		//vampire.Move(7, 4, 0);
-		vampire.Draw(camera, time);
+		//vampire.Draw(window, camera);
+		//warrior.Draw(window, camera);
+		//lizardman.Draw(window, camera);
+		persons[0]->Draw(window, camera);
+		persons[1]->Draw(window, camera);
 
 		//block of calculate screen coords in world coords
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)//если нажата ЛКМ
@@ -99,6 +124,9 @@ int main()
 
 		glfwPollEvents();
 
+		//Timer
+		current_time = glfwGetTime();
+		global_time += current_time - last_time;
 	}
 
 	glDisable(GL_BLEND);

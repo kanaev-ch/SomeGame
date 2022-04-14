@@ -1,7 +1,7 @@
 #include "Battle_Map.h"
 
 char map_prototype[10][10] = {
-	{'G','G','G','G','G','G','G','G','G','G'},
+	{'F','G','G','G','G','G','G','G','G','F'},
 	{'G','G','G','G','G','G','G','G','G','G'},
 	{'G','G','G','G','G','G','G','G','G','G'},
 	{'G','G','G','G','G','G','G','G','G','G'},

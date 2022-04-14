@@ -5,7 +5,7 @@ out vec4 FragColor;//output colors
 in vec3 color;
 in vec2 texCoord;
 
-uniform sampler2D tex0;//textur coordinates
+uniform sampler2D tex0;//texture coordinates
 
 //uniform ON or OFF color or texture of object
 uniform bool tex_or_clr = true;
