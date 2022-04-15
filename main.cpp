@@ -11,9 +11,11 @@
 #include "Vampire.h"
 #include "Warrior.h"
 #include "Lizardman.h"
+#include "Data.h"
+#include "Control.h"
 
-int width = 1700;
-int height = 800;
+//int width = 1700;
+//int height = 800;
 
 int main()
 {
@@ -21,7 +23,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	GLFWwindow* window = glfwCreateWindow(width, height, "SomeGame", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(WIDTH_SCREEN, HEIGHT_SCREEN, "SomeGame", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -30,7 +32,7 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 	gladLoadGL();
-	glViewport(0, 0, width, height);
+	glViewport(0, 0, WIDTH_SCREEN, HEIGHT_SCREEN);
 
 //	Tile tile("Tile.vert", "Tile.frag", "Textures/fire_floor.png", 0, 0, 0);
 //	Tile tile1("Tile.vert", "Tile.frag", "Textures/pop_cat.png", 1, 0, 0);
@@ -45,7 +47,7 @@ int main()
 	//Vampire vampire("Tile.vert", "Tile.frag", "Textures/Vampire_walk_6.png", "Textures/Vampire_stand_10.png", 5, 9, 0, 2);
 	//Vampire vampire("Tile.vert", "Tile.frag", "Textures/warrior_stand_2.png", "Textures/warrior_run_6.png", "Textures/warrior_strike_sword_5.png", 
 		//"Textures/warrior_injured_2.png", "Textures/warrior_defends_4.png", "Textures/warrior_fall_3.png", "Textures/warrior_dead_1.png", 5, 9, 0, 2);
-/*	Warrior warrior("Person.vert", "Person.frag", "Textures/Persons/Warrior/warrior_stand_1.png", "Textures/Persons/Warrior/warrior_run_3.png", 
+	/*Warrior warrior("Person.vert", "Person.frag", "Textures/Persons/Warrior/warrior_stand_1.png", "Textures/Persons/Warrior/warrior_run_3.png", 
 		"Textures/Persons/Warrior/warrior_strike_sword_4.png", "Textures/Persons/Warrior/warrior_injured_2.png", "Textures/Persons/Warrior/warrior_defends_2.png", 
 		"Textures/Persons/Warrior/warrior_fall_3.png", "Textures/Persons/Warrior/warrior_dead_1.png", 5, 9, 0, 2);
 	Lizardman lizardman("Person.vert", "Person.frag", "Textures/Persons/Lizardman/Lizardman_stand_1.png", "Textures/Persons/Lizardman/Lizardman_run_3.png", 
@@ -62,12 +64,19 @@ int main()
 	persons.push_back(new Lizardman("Person.vert", "Person.frag", "Textures/Persons/Lizardman/Lizardman_stand_1.png", "Textures/Persons/Lizardman/Lizardman_run_3.png",
 		"Textures/Persons/Lizardman/Lizardman_strike_sword_3.png", "Textures/Persons/Lizardman/Lizardman_injured_2.png", "Textures/Persons/Lizardman/Lizardman_defends_2.png",
 		"Textures/Persons/Lizardman/Lizardman_fall_3.png", "Textures/Persons/Lizardman/Lizardman_dead_1.png", 5, 7, 0, 2));
-	persons[0]->change_Direction(1);
+	persons.push_back(new Warrior("Person.vert", "Person.frag", "Textures/Persons/Warrior/warrior_stand_1.png", "Textures/Persons/Warrior/warrior_run_3.png",
+		"Textures/Persons/Warrior/warrior_strike_sword_4.png", "Textures/Persons/Warrior/warrior_injured_2.png", "Textures/Persons/Warrior/warrior_defends_2.png",
+		"Textures/Persons/Warrior/warrior_fall_3.png", "Textures/Persons/Warrior/warrior_dead_1.png", 6, 8, 0, 2));
+	//persons[0]->change_Direction(1);
+	//persons[2]->change_Direction(1);
 
-	//Camera camera(width, height, glm::vec3(4.0f, -15.0f, 5.0f));
-	Camera camera(width, height, glm::vec3(4.0f, -15.0f, 5.0f), 45.0f, 0.1f, 100.0f);
+	//Camera camera(width, height, glm::vec3(4.0f, -15.0f, 5.0f), 45.0f, 0.1f, 100.0f);
+	Camera camera(glm::vec3(4.0f, -15.0f, 5.0f), 45.0f, 0.1f, 100.0f);
 
-	Battle_Map battle_map(width, height);
+	//Battle_Map battle_map(width, height);
+	Battle_Map battle_map;
+
+	Control control;
 	
 	//double time = 0;
 
@@ -93,6 +102,9 @@ int main()
 //		tile.Draw(camera);
 //		tile1.Draw(camera);
 
+		control.Mark_Active(persons, persons.size());
+		control.Move();
+
 		battle_map.Draw(camera);
 //		person.Draw(camera, time);
 
@@ -100,25 +112,15 @@ int main()
 		//vampire.Draw(window, camera);
 		//warrior.Draw(window, camera);
 		//lizardman.Draw(window, camera);
-		persons[0]->Draw(window, camera);
-		persons[1]->Draw(window, camera);
+		for (int i = 0; i < persons.size(); i++)
+			persons[i]->Draw(window, camera);
 
-		//block of calculate screen coords in world coords
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)//если нажата ЛКМ
-		{
-			double mouseX;
-			double mouseY;
-			glfwGetCursorPos(window, &mouseX, &mouseY);
-			//std::cout << int(mouseX) << " - " << int(mouseY) << std::endl;
+		//std::cout << persons[0]->Move(3, 9, 0) << std::endl;
+		//if (!persons[0]->Move(3, 9, 0)) persons[0]->Change_Enum_Anime(1);
+		//else persons[0]->Change_Enum_Anime(0);
 
-			GLfloat z;
-			glReadPixels(int(mouseX), height - int(mouseY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
-
-			glm::mat4 view = glm::lookAt(camera.Position, camera.Position + camera.Orientation, camera.Up);
-
-			glm::vec3 win = glm::unProject(glm::vec3(int(mouseX), height - int(mouseY), z), view, camera.projection, glm::vec4(0, 0, width, height));
-			std::cout << int(win.x + 0.5f) << " " << int((win.y - 0.5f) * -1.0f) << " " << int(win.z + 0.9f) << std::endl;
-		}
+		control.Click_Lmb(window, camera, persons, persons.size());
+		
 
 		glfwSwapBuffers(window);
 

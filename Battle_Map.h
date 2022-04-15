@@ -10,7 +10,8 @@ public:
 	std::vector <std::vector <Tile*>> map;
 
 	//default constructor
-	Battle_Map(int width, int height);
+	//Battle_Map(int width, int height);
+	Battle_Map();
 
 	void Draw(Camera & camera);
 

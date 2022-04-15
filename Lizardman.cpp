@@ -12,7 +12,7 @@ Lizardman::Lizardman(const char* vertexFile, const char* fragmentFile, const cha
 
 	direction = false;
 
-	speed_move = 0.001f;
+	speed_move = 0.004f;
 
 	anime = stand;
 
@@ -151,6 +151,11 @@ void Lizardman::Anime_NON_Cycle(int frames, GLuint* VAO, int size_VAO, GLuint& t
 	int count = bind_VAO(frames, float(global_time), VAO, size_VAO, texture);
 }
 
+void Lizardman::Change_Enum_Anime(int anime_)
+{
+	anime = ANIMATION_ENUM(anime_);
+}
+
 void Lizardman::Draw(GLFWwindow* window, Camera& camera)
 {
 	//activate shader programm
@@ -200,11 +205,6 @@ void Lizardman::Draw(GLFWwindow* window, Camera& camera)
 	{
 		anime = dead;
 		global_time = 0;
-	}
-
-	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
-	{
-		selected = true;
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)

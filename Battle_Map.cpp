@@ -13,7 +13,8 @@ char map_prototype[10][10] = {
 	{'F','G','G','G','G','G','G','G','F','G'},
 };
 
-Battle_Map::Battle_Map(int width, int height)
+//Battle_Map::Battle_Map(int width, int height)
+Battle_Map::Battle_Map()
 {
 	map.resize(10);
 	for (int i = 0; i < 10; i++)

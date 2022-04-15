@@ -86,9 +86,6 @@ public:
 	//directoin of person, true if to left
 	bool direction;
 
-	//flag walk or not
-	bool walk;
-
 	//speed of moving person
 	float speed_move;
 
@@ -103,7 +100,8 @@ public:
 
 	void change_Direction(bool direction_);
 
-	void Move(float x_, float y_, float z_);
+	//void Move(float x_, float y_, float z_);
+	bool Move(float x_, float y_, float z_);
 
 	//bind texture
 	void bind_Texture(GLuint& texture_);
@@ -113,6 +111,8 @@ public:
 
 	//func of loading select flag in uniform for back light if Person selected
 	void Selected_Uniform_Load(bool);
+
+	virtual void Change_Enum_Anime(int) = 0;
 
 	virtual void Draw(GLFWwindow* window, Camera& camera) = 0;
 

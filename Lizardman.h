@@ -16,8 +16,8 @@ public:
 	GLuint texture_dead;
 
 	//enum of choice anime
-	enum animation_enum {stand, walk, strike_sword, injured, defends, fall, dead};
-	enum animation_enum anime;
+	enum ANIMATION_ENUM {stand, walk, strike_sword, injured, defends, fall, dead};
+	ANIMATION_ENUM anime;
 
 	//Lizardman(const char* vertexFile, const char* fragmentFile, const char*, const char*, const char*, const char*, const char*, const char*, const char*, float x_, float y_, float z_, float sprite_h_);
 	Lizardman(const char* vertexFile, const char* fragmentFile, const char*, const char*, const char*, const char*, const char*, const char*, const char*, float x_, float y_, float z_, float sprite_h_);
@@ -26,6 +26,8 @@ public:
 	//func of anime
 	void Anime_Cycle(int frames, GLuint* VAO, int size_VAO, GLuint& texture);
 	void Anime_NON_Cycle(int frames, GLuint* VAO, int size_VAO, GLuint& texture);
+
+	void Change_Enum_Anime(int);
 
 	void Draw(GLFWwindow* window, Camera& camera);
 };

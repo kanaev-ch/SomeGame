@@ -11,6 +11,7 @@
 #include <glm/gtx/vector_angle.hpp>
 
 //#include "Tile.h"
+#include "Data.h"
 
 class Camera
 {
@@ -29,13 +30,14 @@ public:
 	bool firstClick = true;
 
 	//Ўирина высота экрана
-	int width;
-	int height;
+	//int width;
+	//int height;
 
 	float speed = 0.005f;//коэф скорости перемещени€ камеры
 	float sensitivity = 100.0f;//коэф чувствительности поворота
 
-	Camera(int width_, int height_, glm::vec3 position, float FOVdeg, float nearPlane, float farPlane);//конструктор объекта камера
+	//Camera(int width_, int height_, glm::vec3 position, float FOVdeg, float nearPlane, float farPlane);//конструктор объекта камера
+	Camera(glm::vec3 position, float FOVdeg, float nearPlane, float farPlane);//конструктор объекта камера
 
 	//ф-€ вычисл€ет вектор куда смотрим и загружает его матрицу в vertex shader ч\з uniform:
 		//1 - угол обзора, 2-3 - ближн€€ и дальн€€ обрезка, 4 - шейдер, 5 - юниформа

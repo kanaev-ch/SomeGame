@@ -8,9 +8,9 @@ Warrior::Warrior(const char* vertexFile, const char* fragmentFile, const char* i
 	//change global height of poligon
 	vertices[10] = vertices[18] = sprite_h_;
 
-	direction = false;
+	direction = true;
 
-	speed_move = 0.001f;
+	speed_move = 0.003f;
 
 	anime = stand;
 
@@ -76,7 +76,7 @@ Warrior::Warrior(const char* vertexFile, const char* fragmentFile, const char* i
 
 	//matrix of position tile, and changing to needed position here
 	view = glm::mat4(1.0f);
-	x = x_; y = y_ * -1; z = z_;
+	x = x_; y = -y_; z = z_;
 	view = glm::translate(view, glm::vec3(x, y, z));
 
 	//create texture object
@@ -149,6 +149,11 @@ void Warrior::Anime_NON_Cycle(int frames, GLuint* VAO, int size_VAO, GLuint& tex
 	int count = bind_VAO(frames, float(global_time), VAO, size_VAO, texture);
 }
 
+void Warrior::Change_Enum_Anime(int anime_)
+{
+	anime = ANIMATION_ENUM(anime_);
+}
+
 /*
 //func anime bind
 void Warrior::Stand(int frames, GLuint* VAO, int size_VAO, GLuint& texture)
@@ -186,6 +191,7 @@ void Warrior::Injured(int frames, GLuint* VAO, int size_VAO, GLuint& texture)
 
 void Warrior::Draw(GLFWwindow* window, Camera& camera)
 {
+	//std::cout << x << " " << y << " " << z << std::endl;
 	//activate shader programm
 	glUseProgram(shaderProgram);
 
@@ -235,14 +241,14 @@ void Warrior::Draw(GLFWwindow* window, Camera& camera)
 		global_time = 0;
 	}
 
-	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
-	{
-		selected = true;
-	}
-
 	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)
 	{
 		selected = false;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+	{
+		change_Direction(!direction);
 	}
 
 	//Load select or not flag in uniform for background light

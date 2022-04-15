@@ -210,12 +210,12 @@ void Person::change_Direction(bool direction_)
 	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_10, VBO_10, 10, EBO, direction);
 }
 
-void Person::Move(float x_, float y_, float z_)
+//void Person::Move(float x_, float y_, float z_)
+bool Person::Move(float x_, float y_, float z_)
 {
 	view = glm::mat4(1.0f);
 	if (x != x_)
 	{
-		walk = true;
 		if (x < x_)
 		{
 			x += speed_move;
@@ -223,45 +223,62 @@ void Person::Move(float x_, float y_, float z_)
 			if (x > x_)
 			{
 				x = x_;
-				walk = false;
-				change_Direction(true);
 			}
 		}
 		else {
 			x -= speed_move;
+			change_Direction(true);
 			if (x < x_)
 			{
 				x = x_;
-				walk = false;
 			}
 		}
 	}
 
-	float y__ = y_ * -1;
 	view = glm::mat4(1.0f);
-	if (y != y__)
+	if (y != -y_)
 	{
-		walk = true;
-		if (y < y__)
+		if (y < -y_)
 		{
 			y += speed_move;
-			if (y > y__)
+			if (y > -y_)
 			{
-				y = y__;
-				walk = false;
+				y = -y_;
 			}
 		}
 		else {
 			y -= speed_move;
-			if (y < y__)
+			if (y < -y_)
 			{
-				y = y__;
-				walk = false;
+				y = -y_;
+			}
+		}
+	}
+
+	view = glm::mat4(1.0f);
+	if (z != z_)
+	{
+		if (z < z_)
+		{
+			z += speed_move;
+			if (z > z_)
+			{
+				z = z_;
+			}
+		}
+		else {
+			z -= speed_move;
+			if (z < z_)
+			{
+				z = z_;
 			}
 		}
 	}
 
 	view = glm::translate(view, glm::vec3(x, y, z));
+
+	if (x == x_ && y == -y_ && z == z_) return true;
+	else return false;
 }
 void Person::bind_Texture(GLuint& texture_)
 {

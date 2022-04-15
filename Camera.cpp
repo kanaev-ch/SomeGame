@@ -1,12 +1,13 @@
 #include "Camera.h"
 
-Camera::Camera(int width_, int height_, glm::vec3 position, float FOVdeg, float nearPlane, float farPlane)
+//Camera::Camera(int width_, int height_, glm::vec3 position, float FOVdeg, float nearPlane, float farPlane)
+Camera::Camera(glm::vec3 position, float FOVdeg, float nearPlane, float farPlane)
 {
-	width = width_;
-	height = height_;
+	//width = width_;
+	//height = height_;
 	Position = position;
 
-	projection = glm::perspective(glm::radians(FOVdeg), (float)(width / height), nearPlane, farPlane);//вычисл перспективу
+	projection = glm::perspective(glm::radians(FOVdeg), (float)(WIDTH_SCREEN / HEIGHT_SCREEN), nearPlane, farPlane);//вычисл перспективу
 }
 
 //void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, GLuint& shaderProgram, const char* uniform)
