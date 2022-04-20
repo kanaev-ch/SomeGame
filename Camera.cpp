@@ -7,7 +7,7 @@ Camera::Camera(glm::vec3 position, float FOVdeg, float nearPlane, float farPlane
 	//height = height_;
 	Position = position;
 
-	projection = glm::perspective(glm::radians(FOVdeg), (float)(WIDTH_SCREEN / HEIGHT_SCREEN), nearPlane, farPlane);//вычисл перспективу
+	projection = glm::perspective(glm::radians(FOVdeg), (float)(WIDTH_SCREEN) / float(HEIGHT_SCREEN), nearPlane, farPlane);//вычисл перспективу
 }
 
 //void Camera::Matrix(float FOVdeg, float nearPlane, float farPlane, GLuint& shaderProgram, const char* uniform)

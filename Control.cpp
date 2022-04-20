@@ -29,7 +29,7 @@ void Control::Click_Lmb(GLFWwindow* window, Camera& camera, std::vector<Person*>
 		glm::mat4 view = glm::lookAt(camera.Position, camera.Position + camera.Orientation, camera.Up);
 
 		glm::vec3 win = glm::unProject(glm::vec3(int(mouseX), HEIGHT_SCREEN - int(mouseY), _z), view, camera.projection, glm::vec4(0, 0, WIDTH_SCREEN, HEIGHT_SCREEN));
-		//std::cout << int(win.x + 0.5f) << " " << int(win.y - 0.5f) << " " << int(win.z + 0.9f) << std::endl;
+		//std::cout << win.x << " " << win.y << " " << win.z << std::endl;
 		
 		//Rounded data is here
 		x = float(int(win.x + 0.5f)); y = float(int(win.y - 0.5f)); z = float(int(win.z + 0.9f));
@@ -56,17 +56,7 @@ void Control::Mark_Active(std::vector<Person*> persons, size_t size_persons)
 
 void Control::Melee_Attack(GLFWwindow* window, std::vector<Person*> persons, size_t size_persons)
 {
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)//если нажата ЛКМ
-	{
-		if (person_selected)
-		{
-			for (int i = 0; i < size_persons; i++)
-			{
-				if (person_selected->x == persons[i]->x - 1 || person_selected->x == persons[i]->x + 1)
-					person_selected->Change_Enum_Anime(2);
-			}
-		}
-	}
+	
 }
 
 void Control::Move()

@@ -13,6 +13,7 @@
 #include "Lizardman.h"
 #include "Data.h"
 #include "Control.h"
+#include "Battle_Interface.h"
 
 //int width = 1700;
 //int height = 800;
@@ -24,12 +25,14 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	GLFWwindow* window = glfwCreateWindow(WIDTH_SCREEN, HEIGHT_SCREEN, "SomeGame", NULL, NULL);
+	//GLFWwindow* window = glfwCreateWindow(WIDTH_SCREEN, HEIGHT_SCREEN, "SomeGame", glfwGetPrimaryMonitor(), NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
 		glfwTerminate();
 		return -1;
 	}
+
 	glfwMakeContextCurrent(window);
 	gladLoadGL();
 	glViewport(0, 0, WIDTH_SCREEN, HEIGHT_SCREEN);
@@ -77,6 +80,10 @@ int main()
 	Battle_Map battle_map;
 
 	Control control;
+
+	Battle_Interface battle_interface("Rect.vert", "Rect.frag", "Textures/Battle_Interface/background.png", 
+									  "Textures/Battle_Interface/go.png", "Textures/Battle_Interface/go_act.png", 
+									  "Textures/Battle_Interface/attack.png", "Textures/Battle_Interface/attack_act.png");
 	
 	//double time = 0;
 
@@ -122,9 +129,17 @@ int main()
 		control.Click_Lmb(window, camera, persons, persons.size());
 		
 
+
+		//Draw Battle Interface
+		//camera.projection = glm::mat4(1.0f);
+		battle_interface.Draw(window);
+		//camera.projection = glm::perspective(glm::radians(45.0f), (float)(WIDTH_SCREEN / HEIGHT_SCREEN), 0.1f, 100.0f);
+
+
 		glfwSwapBuffers(window);
 
 		glfwPollEvents();
+
 
 		//Timer
 		current_time = glfwGetTime();
@@ -132,6 +147,9 @@ int main()
 	}
 
 	glDisable(GL_BLEND);
+
+	for (int i = 0; i < persons.size(); i++)
+		delete persons[i];
 
 	glfwDestroyWindow(window);
 	glfwTerminate();
