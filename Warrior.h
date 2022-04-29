@@ -19,6 +19,9 @@ public:
 	enum ANIMATION_ENUM {stand, walk, strike_sword, injured, defends, fall, dead};
 	ANIMATION_ENUM anime;
 
+	//temp save current coords of person for calc range move
+	//float x_move, y_move;
+
 	Warrior(const char* vertexFile, const char* fragmentFile, const char*, const char*, const char*, const char*, const char*, const char*, const char*, float x_, float y_, float z_, float sprite_h_);
 	~Warrior();
 
@@ -27,6 +30,9 @@ public:
 	void Anime_NON_Cycle(int frames, GLuint* VAO, int size_VAO, GLuint& texture);
 
 	void Change_Enum_Anime(int);
+
+	//void Move(float x_, float y_, float z_);
+	bool Move(float x_, float y_, float z_);
 
 
 	/*

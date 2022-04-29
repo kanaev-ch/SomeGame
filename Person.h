@@ -15,6 +15,8 @@
 
 #include "Camera.h"
 #include "get_file_contents.h"
+#include "Global_Time.h"
+#include "Data.h"
 
 //std::string get_file_contents(const char* filename);
 
@@ -92,6 +94,15 @@ public:
 	//flag selected person or not
 	bool selected;
 
+	//Range how far person move by cells
+	//float walk_range_x, walk_range_y;
+
+	//Dynamic array coords of person way, init new in default construct, walk_range its size
+	Step* step;
+
+	//Person walk range, init in default constructor of warrior, lizardman etc..., size of array step
+	int walk_range;
+
 //	Person(const char* vertexFile, const char* fragmentFile, const char* image, float x_, float y_, float z_, float sprite_h_);
 	virtual ~Person();
 
@@ -101,7 +112,7 @@ public:
 	void change_Direction(bool direction_);
 
 	//void Move(float x_, float y_, float z_);
-	bool Move(float x_, float y_, float z_);
+	virtual bool Move(float x_, float y_, float z_) = 0;
 
 	//bind texture
 	void bind_Texture(GLuint& texture_);

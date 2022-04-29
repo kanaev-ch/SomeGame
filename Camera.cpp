@@ -3,8 +3,6 @@
 //Camera::Camera(int width_, int height_, glm::vec3 position, float FOVdeg, float nearPlane, float farPlane)
 Camera::Camera(glm::vec3 position, float FOVdeg, float nearPlane, float farPlane)
 {
-	//width = width_;
-	//height = height_;
 	Position = position;
 
 	projection = glm::perspective(glm::radians(FOVdeg), (float)(WIDTH_SCREEN) / float(HEIGHT_SCREEN), nearPlane, farPlane);//вычисл перспективу
@@ -31,28 +29,34 @@ void Camera::Inputs(GLFWwindow * window)
 	//блок управления клавиш
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)//нажатие W
 	{
-		Position += speed * Up;//двигаемся вперед
+		//Position += speed * Up;//двигаемся вперед
+		Position += speed * past_time * Up;//двигаемся вперед
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)//нажатие A
 	{
-		Position += speed * -glm::normalize(glm::cross(Orientation, Up));//двигаемся влево
+		//Position += speed * -glm::normalize(glm::cross(Orientation, Up));//двигаемся влево
+		Position += speed * past_time * -glm::normalize(glm::cross(Orientation, Up));//двигаемся влево
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)//нажатие  S
 	{
-		Position += speed * -Up;//двигаемся назад
+		//Position += speed * -Up;//двигаемся назад
+		Position += speed * past_time * -Up;//двигаемся назад
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)//нажатие D
 	{
-		Position += speed * glm::normalize(glm::cross(Orientation, Up));//двигаемся вправо
+		//Position += speed * glm::normalize(glm::cross(Orientation, Up));//двигаемся вправо
+		Position += speed * past_time * glm::normalize(glm::cross(Orientation, Up));//двигаемся вправо
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)//нажатие R
 	{
-		Position += speed * Orientation;//приближаемся
+		//Position += speed * Orientation;//приближаемся
+		Position += speed * past_time * Orientation;//приближаемся
 	}
 	if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)//нажатие F
 	{
-		Position += speed * -Orientation;//отдаляемся
+		//Position += speed * -Orientation;//отдаляемся
+		Position += speed * past_time * -Orientation;//отдаляемся
 	}
 /*	//блок управления клавиш
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)//нажатие W

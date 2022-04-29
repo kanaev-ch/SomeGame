@@ -211,14 +211,15 @@ void Person::change_Direction(bool direction_)
 }
 
 //void Person::Move(float x_, float y_, float z_)
-bool Person::Move(float x_, float y_, float z_)
+/*bool Person::Move(float x_, float y_, float z_)
 {
 	view = glm::mat4(1.0f);
 	if (x != x_)
 	{
 		if (x < x_)
 		{
-			x += speed_move;
+			//x += speed_move;
+			x += speed_move * past_time;
 			change_Direction(false);
 			if (x > x_)
 			{
@@ -226,7 +227,8 @@ bool Person::Move(float x_, float y_, float z_)
 			}
 		}
 		else {
-			x -= speed_move;
+			//x -= speed_move;
+			x -= speed_move * past_time;
 			change_Direction(true);
 			if (x < x_)
 			{
@@ -235,19 +237,21 @@ bool Person::Move(float x_, float y_, float z_)
 		}
 	}
 
-	view = glm::mat4(1.0f);
+	//view = glm::mat4(1.0f);
 	if (y != -y_)
 	{
 		if (y < -y_)
 		{
-			y += speed_move;
+			//y += speed_move;
+			y += speed_move * past_time;
 			if (y > -y_)
 			{
 				y = -y_;
 			}
 		}
 		else {
-			y -= speed_move;
+			//y -= speed_move;
+			y -= speed_move * past_time;
 			if (y < -y_)
 			{
 				y = -y_;
@@ -255,7 +259,7 @@ bool Person::Move(float x_, float y_, float z_)
 		}
 	}
 
-	view = glm::mat4(1.0f);
+	//view = glm::mat4(1.0f);
 	if (z != z_)
 	{
 		if (z < z_)
@@ -279,7 +283,8 @@ bool Person::Move(float x_, float y_, float z_)
 
 	if (x == x_ && y == -y_ && z == z_) return true;
 	else return false;
-}
+}*/
+
 void Person::bind_Texture(GLuint& texture_)
 {
 	//bind texture

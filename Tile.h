@@ -13,6 +13,7 @@
 
 #include "Camera.h"
 #include "get_file_contents.h"
+#include "Data.h"
 
 //std::string get_file_contents(const char* filename);
 
@@ -68,6 +69,8 @@ public:
 	glm::mat4 view;
 	float x, y, z;
 
+	//CLR clr;
+
 //	Tile();
 	Tile(const char* vertexFile, const char* fragmentFile, const char* image, float x_, float y_, float z_);
 	
@@ -75,7 +78,7 @@ public:
 	
 	~Tile();
 
-	void Draw(Camera & camera);
+	void Draw(Camera & camera, CLR);
 
 private:
 	void compileErrors(unsigned int shader, const char* type);//проверка ошибок на комипиляцию, линковку шейдера

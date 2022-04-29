@@ -18,6 +18,16 @@ Lizardman::Lizardman(const char* vertexFile, const char* fragmentFile, const cha
 
 	selected = false;
 
+	//walk_range_x = 3;
+	//walk_range_y = 3;
+	walk_range = 3;
+
+	step = new Step[walk_range];
+
+	step[0].x = 4.0f; step[0].y = -9.0f; step[0].z = 0.0f;
+	step[1].x = 3.0f; step[1].y = -8.0f; step[1].z = 0.0f;
+	step[2].x = 2.0f; step[2].y = -8.0f; step[2].z = 0.0f;
+
 	std::string vertexCode = get_file_contents(vertexFile);//func takes simbols from file to string
 	std::string fragmentCode = get_file_contents(fragmentFile);//func takes simbols from file to string
 
@@ -78,7 +88,8 @@ Lizardman::Lizardman(const char* vertexFile, const char* fragmentFile, const cha
 
 	//matrix of position tile, and changing to needed position here
 	view = glm::mat4(1.0f);
-	x = x_; y = y_ * -1; z = z_;
+	x = x_; y = -y_; z = z_;
+	//x = x_move = x_; y = y_move = -y_; z = z_;
 	view = glm::translate(view, glm::vec3(x, y, z));
 
 	//create texture object
@@ -127,6 +138,7 @@ Lizardman::~Lizardman()
 	glDeleteTextures(1, &texture_defends);
 	glDeleteTextures(1, &texture_fall);
 	glDeleteTextures(1, &texture_dead);
+	delete[]step;
 }
 
 //func anime bind by cycle
@@ -154,6 +166,125 @@ void Lizardman::Anime_NON_Cycle(int frames, GLuint* VAO, int size_VAO, GLuint& t
 void Lizardman::Change_Enum_Anime(int anime_)
 {
 	anime = ANIMATION_ENUM(anime_);
+}
+
+bool Lizardman::Move(float x_, float y_, float z_)
+{
+	view = glm::mat4(1.0f);
+
+	if (x < x_)
+	{
+		//x += speed_move;
+		x += speed_move * past_time;
+		change_Direction(false);
+		if (x > x_)
+		{
+			x = x_;
+		}
+	}
+	else {
+		//x -= speed_move;
+		x -= speed_move * past_time;
+		change_Direction(true);
+		if (x < x_)
+		{
+			x = x_;
+		}
+	}
+
+
+	//view = glm::mat4(1.0f);
+
+	if (y < -y_)
+	{
+		//y += speed_move;
+		y += speed_move * past_time;
+		if (y > -y_)
+		{
+			y = -y_;
+		}
+	}
+	else {
+		//y -= speed_move;
+		y -= speed_move * past_time;
+		if (y < -y_)
+		{
+			y = -y_;
+		}
+	}
+
+
+	//block of calculate move by X with range
+	/*if (x_ - x_move <= walk_range_x && x_ - x_move > 0)
+	{
+		//std::cout << "right x" << x << std::endl;
+		//x += speed_move;
+		x += speed_move * past_time;
+		change_Direction(false);
+		if (x > x_)
+		{
+			x = x_move = x_;
+		}
+	}
+	else if (x_ - x_move >= -walk_range_x && x_ - x_move < 0)
+	{
+		//std::cout << "left x" << x << std::endl;
+		//x -= speed_move;
+		x -= speed_move * past_time;
+		change_Direction(true);
+		if (x < x_)
+		{
+			x = x_move = x_;
+		}
+	}
+
+	//view = glm::mat4(1.0f);
+	//block of calculate move by Y with range
+	if (-y_ - y_move <= walk_range_y && -y_ - y_move > 0)
+	{
+		//std::cout << "UP" << -y_ - y_move << std::endl;
+		//y += speed_move;
+		y += speed_move * past_time;
+		if (y > -y_)
+		{
+			y = y_move = -y_;
+		}
+	}
+	else if (-y_ - y_move >= -walk_range_y && -y_ - y_move < 0)
+	{
+		//std::cout << "DOWN" << -y_ - y_move << std::endl;
+		//y -= speed_move;
+		y -= speed_move * past_time;
+		if (y < -y_)
+		{
+			y = y_move = -y_;
+		}
+	}*/
+
+	//view = glm::mat4(1.0f);
+	if (z != z_)
+	{
+		if (z < z_)
+		{
+			z += speed_move;
+			if (z > z_)
+			{
+				z = z_;
+			}
+		}
+		else {
+			z -= speed_move;
+			if (z < z_)
+			{
+				z = z_;
+			}
+		}
+	}
+
+	view = glm::translate(view, glm::vec3(x, y, z));
+
+	if (x == x_ && y == -y_ && z == z_) return true;
+	else return false;
 }
 
 void Lizardman::Draw(GLFWwindow* window, Camera& camera)
@@ -205,6 +336,11 @@ void Lizardman::Draw(GLFWwindow* window, Camera& camera)
 	{
 		anime = dead;
 		global_time = 0;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)
+	{
+		selected = true;
 	}
 
 	if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)

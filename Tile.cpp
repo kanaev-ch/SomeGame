@@ -152,7 +152,7 @@ Tile::~Tile()
 	glDeleteTextures(1, &texture);
 }
 
-void Tile::Draw(Camera & camera)
+void Tile::Draw(Camera & camera, CLR clr_)
 {
 	//activate shader programm and VAO
 	glUseProgram(shaderProgram);
@@ -161,6 +161,15 @@ void Tile::Draw(Camera & camera)
 	//load to vertex uniform current position of tile
 	int viewLoc = glGetUniformLocation(shaderProgram, "view");
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));	
+
+
+	//Block for color tiles in different colors by load color in uniform
+	//clr = red_green;
+	//CLR clr = clr_;
+	GLuint switch_clr = glGetUniformLocation(shaderProgram, "switch_clr");
+	glUniform1i(switch_clr, clr_);
+
+
 
 	//aplying camera uniform fo look at
 	//camera.Matrix(45.0f, 0.1f, 100.0f, shaderProgram, "camMatrix");

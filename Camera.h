@@ -12,6 +12,7 @@
 
 //#include "Tile.h"
 #include "Data.h"
+#include "Global_Time.h"
 
 class Camera
 {
