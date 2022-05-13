@@ -103,6 +103,9 @@ public:
 	//Person walk range, init in default constructor of warrior, lizardman etc..., size of array step
 	int walk_range;
 
+	//Flag person move or not
+	bool walk_flag;
+
 //	Person(const char* vertexFile, const char* fragmentFile, const char* image, float x_, float y_, float z_, float sprite_h_);
 	virtual ~Person();
 

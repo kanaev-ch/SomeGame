@@ -15,8 +15,11 @@
 class Control
 {
 public:
-	//Coords of World Click
+	//Coords of World Left Mouse Click
 	float x, y, z;
+
+	//Coords of world Mouse Over
+	float x_over, y_over, z_over;
 
 	double mouseX;
 	double mouseY;
@@ -27,22 +30,38 @@ public:
 	//Object of Battle_Interface
 	Battle_Interface * battle_interface;
 
-	//Temp var to switch steps in array of move Step* step
+	//Counter var to switch steps in array of move Step* step
 	int chk_walk_rng;
 
 	Control();
 	~Control();
 
+	//Func draw ortho interface
 	void Draw_Interface(GLFWwindow* window);
 
 	//Func save World coords of click
 	void Click_Lmb(GLFWwindow* window, Camera& camera, std::vector<Person*>, size_t);
 
-	//Func for change color of tile if mouse over it. It works y double draw of map tile and clear color bits between draw
+	//Func for save mouse over coords
 	void Mouse_Over_Battle_Map(GLFWwindow* window, Camera& camera, Battle_Map &);
 
 	//Func make active person with back light in shader
 	void Mark_Active(std::vector<Person*>, size_t, GLFWwindow* window);
+
+	//Func of unmark active-selected person
+	void UnMark_Active(GLFWwindow* window);
+
+	//Func draw walk range tiles around active person
+	void Walk_Area_Draw(Camera& camera, Battle_Map &);
+
+	//Func of save mouse over coords to person walk-way array
+	void Save_Walk_Coords_to_Arr(GLFWwindow* window, Camera& camera, Battle_Map&);
+
+	//Func draw tile under mouse when mouse over it
+	void Draw_Mouse_Over_Tile(Camera& camera, Battle_Map& battle_map, CLR clr)const;
+
+	//Func draw tile of person array way direction
+	void Draw_Person_Way_Walk(Camera& camera, Battle_Map& battle_map)const;
 
 	//
 	void Melee_Attack(GLFWwindow* window, std::vector<Person*> persons, size_t size_persons);

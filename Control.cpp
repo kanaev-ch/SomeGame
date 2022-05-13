@@ -7,6 +7,7 @@ Control::Control()
 	x = y = z = 0;
 	mouseX = mouseY = 0;
 	person_selected = 0;
+	x_over = y_over = z_over = 0;
 
 	//Create object of Battle_Interface
 	battle_interface = new Battle_Interface ("Rect.vert", "Rect.frag", "Textures/Battle_Interface/background.png",
@@ -94,11 +95,7 @@ void Control::Click_Lmb(GLFWwindow* window, Camera& camera, std::vector<Person*>
 
 void Control::Mouse_Over_Battle_Map(GLFWwindow* window, Camera& camera, Battle_Map & battle_map)
 {
-	float x, y, z;
-
-	//Calculate width height of map by array
-	int width_map = sizeof(battle_map.map_prototype) / sizeof(battle_map.map_prototype[0]);
-	int height_map = sizeof(battle_map.map_prototype[0]) / sizeof(char);
+	//float x, y, z;
 
 	//Save cursor position
 	glfwGetCursorPos(window, &mouseX, &mouseY);
@@ -117,20 +114,19 @@ void Control::Mouse_Over_Battle_Map(GLFWwindow* window, Camera& camera, Battle_M
 		//std::cout << win.x << " " << win.y << " " << win.z << std::endl;
 
 		//Rounded data is here
-		x = float(int(win.x + 0.5f)); y = float(int(win.y - 0.5f)); z = float(int(win.z + 0.9f));
+		x_over = float(int(win.x + 0.5f)); y_over = float(int(win.y - 0.5f)); z_over = float(int(win.z + 0.9f));
+	}
+}
 
-		//Check cursor over the map pole
-		//if (x >= 0 && x <= 9 && y >= -9 && y <= 0)
-		if (x >= 0 && x <= width_map - 1 && y >= -height_map - 1 && y <= 0)
+void Control::Draw_Mouse_Over_Tile(Camera& camera, Battle_Map& battle_map, CLR clr)const
+{
+	//Check tile is in map area
+	if (x_over >= 0 && x_over <= battle_map.map_w - 1 && y_over >= -(battle_map.map_h - 1) && y_over <= 0)
 		{
-			//Clear bit after first draw tiles
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-			//Change color of bit if mouse over it
-			battle_map.map[int(-y)][int(x)]->Draw(camera, green);
+			//Draw tile under mouse
+			battle_map.map[int(-y_over)][int(x_over)]->Draw(camera, clr);
 			//std::cout << x << " - " << y << " - " << z << std::endl;
 		}
-	}
 }
 
 void Control::Mark_Active(std::vector<Person*> persons, size_t size_persons, GLFWwindow* window)
@@ -139,18 +135,185 @@ void Control::Mark_Active(std::vector<Person*> persons, size_t size_persons, GLF
 	{
 		for (int i = 0; i < size_persons; i++)
 		{
-			//std::cout << x << " " << y << " " << z << std::endl;
-
 			//save person object to pointer if coords are same
-			if (persons[i]->x == x && persons[i]->y == y && person_selected != persons[i]) person_selected = persons[i];
+			if (persons[i]->x == x && persons[i]->y == y && person_selected != persons[i])
+			{
+				person_selected = persons[i];
+				//std::cout << persons[i] << " " << person_selected << std::endl;
+			}
 			//unselect preson pointer if click coors are not same and Battle_Interface flag not active
-			else if (persons[i]->x != x && persons[i]->y != y && person_selected != persons[i] && !battle_interface->go_flag) person_selected = 0;
+			//else if (persons[i]->x != x && persons[i]->y != y && person_selected != persons[i] && !battle_interface->go_flag) person_selected = 0;
 
 			//Select or UnSelect person for backround color of person
 			if (person_selected == persons[i]) persons[i]->selected = true;
 			else persons[i]->selected = false;
 		}
 	}
+}
+
+void Control::UnMark_Active(GLFWwindow* window)
+{
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS && person_selected)//если нажата ПКМ
+	{
+		//clear active person by RMB
+		person_selected->selected = false;
+		person_selected = 0;
+	}
+}
+
+void Control::Walk_Area_Draw(Camera& camera, Battle_Map& battle_map)
+{
+	//if person active and not moving
+	if (person_selected && !person_selected->walk_flag)
+	{
+		//cycle draw selected range tiles of active person
+		for (int i = -person_selected->walk_range; i <= person_selected->walk_range; i++)
+			for (int j = -person_selected->walk_range; j <= person_selected->walk_range; j++)
+			{
+				//check the tile position in map
+				if (person_selected->x + i >= 0 && person_selected->x + i <= battle_map.map_w - 1 && person_selected->y - j >= -(battle_map.map_h - 1) && person_selected->y - j <= 0)
+					//Draw selected range tile tile
+					battle_map.map[int(-person_selected->y + j)][int(person_selected->x + i)]->Draw(camera, red);
+			}
+	}
+}
+
+void Control::Draw_Person_Way_Walk(Camera& camera, Battle_Map& battle_map)const
+{
+	if (person_selected)
+	{
+		for (int i = 0; i < person_selected->walk_range; i++)
+			//Check tile is in map area
+			if (person_selected->step[i].x >= 0 && person_selected->step[i].x <= battle_map.map_w - 1 && 
+				person_selected->step[i].y >= -(battle_map.map_h - 1) && person_selected->step[i].y <= 0)
+				battle_map.map[int(-person_selected->step[i].y)][int(person_selected->step[i].x)]->Draw(camera, blue);
+	}
+}
+
+void Control::Save_Walk_Coords_to_Arr(GLFWwindow* window, Camera& camera, Battle_Map& battle_map)
+{
+	//If person selected, GO button off, and he is not move
+	if (person_selected && battle_interface->go_flag && !person_selected->walk_flag)
+	{
+		//Select by walk range of person
+		switch (person_selected->walk_range)
+		{
+		//Block for persons with 2 steps
+		case 2: {
+			//Block of chek nearest to person tile
+			if (x_over >= person_selected->x - 1 && x_over <= person_selected->x + 1 &&
+				y_over >= person_selected->y - 1 && y_over <= person_selected->y + 1)
+			{
+				//Save way tile to first cell of way arr
+				person_selected->step[0].x = x_over;
+				person_selected->step[0].y = y_over;
+						
+				//std::cout << x_over << " - " << y_over << std::endl;
+
+				//Clear other cells, NO first
+				for (int i = 1; i < person_selected->walk_range; i++)
+				{
+					person_selected->step[i].x = -1.0f;
+					person_selected->step[i].y =  1.0f;
+				}
+
+				//By RMB activate move person flag
+				if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)//if RMB pressed
+				{
+					person_selected->walk_flag = true;
+				}
+			}
+
+			//Block of check second tile, nearest to ferst tile in arr way
+			if (person_selected->step[0].x >= 0 && person_selected->step[0].y <= 0)
+			{
+				if (x_over >= person_selected->step[0].x - 1 && x_over <= person_selected->step[0].x + 1 &&
+					y_over >= person_selected->step[0].y - 1 && y_over <= person_selected->step[0].y + 1)
+				{
+					//Save way tile to second cell of way arr
+					person_selected->step[1].x = x_over;
+					person_selected->step[1].y = y_over;
+
+					//By RMB activate move person flag
+					if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)//if RMB pressed
+					{
+						person_selected->walk_flag = true;
+					}
+				}
+			}
+
+			break;
+		}
+
+		//Block for persons with 3 steps
+		case 3: {
+			//Block of chek nearest to person tile
+			if (x_over >= person_selected->x - 1 && x_over <= person_selected->x + 1 &&
+				y_over >= person_selected->y - 1 && y_over <= person_selected->y + 1)
+			{
+				//Save way tile to second cell of way arr
+				person_selected->step[0].x = x_over;
+				person_selected->step[0].y = y_over;
+
+				//std::cout << x_over << " - " << y_over << std::endl;
+
+				//Clear other cells, NO first
+				for (int i = 1; i < person_selected->walk_range; i++)
+				{
+					person_selected->step[i].x = -1.0f;
+					person_selected->step[i].y = 1.0f;
+				}
+
+				//By RMB activate move person flag
+				if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)//if RMB pressed
+				{
+					person_selected->walk_flag = true;
+				}
+			}
+
+			//Block of check second tile, nearest to first tile in arr way
+			if (person_selected->step[0].x >= 0 && person_selected->step[0].y <= 0)
+			{
+				if (x_over >= person_selected->step[0].x - 1 && x_over <= person_selected->step[0].x + 1 &&
+					y_over >= person_selected->step[0].y - 1 && y_over <= person_selected->step[0].y + 1)
+				{
+					//Save way tile to second cell of way arr
+					person_selected->step[1].x = x_over;
+					person_selected->step[1].y = y_over;
+
+					//By RMB activate move person flag
+					if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)//if RMB pressed
+					{
+						person_selected->walk_flag = true;
+					}
+				}
+			}
+
+			//Block of check Third tile, nearest to second tile in arr way
+			if (person_selected->step[1].x >= 0 && person_selected->step[1].y <= 0)
+			{
+				if (x_over >= person_selected->step[1].x - 1 && x_over <= person_selected->step[1].x + 1 &&
+					y_over >= person_selected->step[1].y - 1 && y_over <= person_selected->step[1].y + 1)
+				{
+					//Save way tile to second cell of way arr
+					person_selected->step[2].x = x_over;
+					person_selected->step[2].y = y_over;
+
+					//By RMB activate move person flag
+					if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)//if RMB pressed
+					{
+						person_selected->walk_flag = true;
+					}
+				}
+			}
+
+			break;
+		}
+		
+		}
+	}
+
+	
 }
 
 void Control::Melee_Attack(GLFWwindow* window, std::vector<Person*> persons, size_t size_persons)
@@ -207,10 +370,12 @@ void Control::Move()
 	}*/
 
 	//Move person if Battle_Interface flag active and person selected
-	if (person_selected && battle_interface->go_flag)
+	if (person_selected && battle_interface->go_flag && person_selected->walk_flag)
 	{
 		//Move person
-		if (!person_selected->Move(person_selected->step[chk_walk_rng].x, -person_selected->step[chk_walk_rng].y, person_selected->step[chk_walk_rng].z))
+		//if (!person_selected->Move(person_selected->step[chk_walk_rng].x, -person_selected->step[chk_walk_rng].y, person_selected->step[chk_walk_rng].z))
+		if (person_selected->step[chk_walk_rng].x >=0 && person_selected->step[chk_walk_rng].y <= 0 && person_selected->step[chk_walk_rng].z >= 0 &&
+			!person_selected->Move(person_selected->step[chk_walk_rng].x, -person_selected->step[chk_walk_rng].y, person_selected->step[chk_walk_rng].z))
 		{
 			person_selected->Change_Enum_Anime(1);
 		}
@@ -222,12 +387,29 @@ void Control::Move()
 			//end of walk
 			if (chk_walk_rng == person_selected->walk_range)
 			{
+				//clear array trajectory of move
+				for (int i = 0; i < person_selected->walk_range; i++)
+				{
+					person_selected->step[i].x = -1;
+					person_selected->step[i].y =  1;
+				}
+
+				//change anime to stand
 				person_selected->Change_Enum_Anime(0);
 
+				//Stop person
+				person_selected->walk_flag = false;
+
+				//Unselect person
+				person_selected->selected = false;
+
+				//clear pointer of selected person
 				person_selected = 0;
 
+				//unset go button in interface
 				battle_interface->go_flag = false;
 
+				//reset counter of steps
 				chk_walk_rng = 0;
 			}
 		}

@@ -3,7 +3,7 @@
 
 
 Warrior::Warrior(const char* vertexFile, const char* fragmentFile, const char* image, const char* image2, const char* image3, const char* image4, const char* image5, 
-	const char* image6, const char* image7, float x_, float y_, float z_, float sprite_h_)
+	const char* image6, const char* image7, float x_, float y_, float z_, float sprite_h_, int walk_range_)
 {
 	//change global height of poligon
 	vertices[10] = vertices[18] = sprite_h_;
@@ -16,14 +16,16 @@ Warrior::Warrior(const char* vertexFile, const char* fragmentFile, const char* i
 
 	selected = false;
 
+	walk_flag = false;
+
 	//walk_range_x = 2;
 	//walk_range_y = 2;
-	walk_range = 2;
+	walk_range = walk_range_;
 
 	step = new Step[walk_range];
 
-	step[0].x = 4.0f; step[0].y = -9.0f; step[0].z = 0.0f;
-	step[1].x = 3.0f; step[1].y = -8.0f; step[1].z = 0.0f;
+	step[0].x = -1.0f; step[0].y = -1.0f; step[0].z = 0.0f;
+	step[1].x = +1.0f; step[1].y = +1.0f; step[1].z = 0.0f;
 
 	std::string vertexCode = get_file_contents(vertexFile);//func takes simbols from file to string
 	std::string fragmentCode = get_file_contents(fragmentFile);//func takes simbols from file to string

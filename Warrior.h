@@ -22,7 +22,8 @@ public:
 	//temp save current coords of person for calc range move
 	//float x_move, y_move;
 
-	Warrior(const char* vertexFile, const char* fragmentFile, const char*, const char*, const char*, const char*, const char*, const char*, const char*, float x_, float y_, float z_, float sprite_h_);
+	Warrior(const char* vertexFile, const char* fragmentFile, const char*, const char*, const char*, const char*, const char*, const char*, const char*, float x_, float y_, float z_, float sprite_h_,
+			int walk_range);
 	~Warrior();
 
 	//func of anime

@@ -42,20 +42,20 @@ int main()
 	std::vector <Person*> persons;
 	persons.push_back(new Warrior("Person.vert", "Person.frag", "Textures/Persons/Warrior/warrior_stand_1.png", "Textures/Persons/Warrior/warrior_run_3.png",
 		"Textures/Persons/Warrior/warrior_strike_sword_4.png", "Textures/Persons/Warrior/warrior_injured_2.png", "Textures/Persons/Warrior/warrior_defends_2.png",
-		"Textures/Persons/Warrior/warrior_fall_3.png", "Textures/Persons/Warrior/warrior_dead_1.png", 5, 9, 0, 2));
+		"Textures/Persons/Warrior/warrior_fall_3.png", "Textures/Persons/Warrior/warrior_dead_1.png", 4, 3, 0, 2, 2));
 	persons.push_back(new Lizardman("Person.vert", "Person.frag", "Textures/Persons/Lizardman/Lizardman_stand_1.png", "Textures/Persons/Lizardman/Lizardman_run_3.png",
 		"Textures/Persons/Lizardman/Lizardman_strike_sword_3.png", "Textures/Persons/Lizardman/Lizardman_injured_2.png", "Textures/Persons/Lizardman/Lizardman_defends_2.png",
-		"Textures/Persons/Lizardman/Lizardman_fall_3.png", "Textures/Persons/Lizardman/Lizardman_dead_1.png", 5, 7, 0, 2));
+		"Textures/Persons/Lizardman/Lizardman_fall_3.png", "Textures/Persons/Lizardman/Lizardman_dead_1.png", 5, 5, 0, 2, 3));
 	persons.push_back(new Warrior("Person.vert", "Person.frag", "Textures/Persons/Warrior/warrior_stand_1.png", "Textures/Persons/Warrior/warrior_run_3.png",
 		"Textures/Persons/Warrior/warrior_strike_sword_4.png", "Textures/Persons/Warrior/warrior_injured_2.png", "Textures/Persons/Warrior/warrior_defends_2.png",
-		"Textures/Persons/Warrior/warrior_fall_3.png", "Textures/Persons/Warrior/warrior_dead_1.png", 6, 8, 0, 2));
+		"Textures/Persons/Warrior/warrior_fall_3.png", "Textures/Persons/Warrior/warrior_dead_1.png", 6, 6, 0, 2, 2));
 	//persons[0]->selected = true;
 	//persons[1]->selected = true;
 	//persons[2]->selected = true;
 	//persons[0]->change_Direction(1);
 	//persons[2]->change_Direction(1);
 
-	Camera camera(glm::vec3(4.0f, -15.0f, 5.0f), 45.0f, 0.1f, 100.0f);
+	Camera camera(glm::vec3(5.0f, -14.0f, 5.0f), 45.0f, 0.1f, 100.0f);
 
 	Battle_Map battle_map;
 
@@ -80,23 +80,34 @@ int main()
 
 		camera.Inputs(window);
 
-		//First draw of map tiles
+		//First draw of All scene
 		battle_map.Draw(camera, rgb);
-
-		//Chk mouse coords over map, change color of tile under cursor
-		control.Mouse_Over_Battle_Map(window, camera, battle_map);
-		
-		//Second draw of map tiles after clear color bits and change color of one tile
-		battle_map.Draw(camera, rgb);
-
 		for (int i = 0; i < persons.size(); i++)
 			persons[i]->Draw(window, camera);
-
 		control.Draw_Interface(window);
+
+		//Read and save all coords into variables
+		control.Mouse_Over_Battle_Map(window, camera, battle_map);
 		control.Click_Lmb(window, camera, persons, persons.size());
+		control.Save_Walk_Coords_to_Arr(window, camera, battle_map);
+
+		//Clear all scene
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
 		control.Mark_Active(persons, persons.size(), window);
+		control.UnMark_Active(window);
+		control.Draw_Person_Way_Walk(camera, battle_map);
+		control.Draw_Mouse_Over_Tile(camera, battle_map, green);
+		control.Walk_Area_Draw(camera, battle_map);
+
 		control.Move();
+
+		//Second draw ALL scene
+		battle_map.Draw(camera, rgb);
+		for (int i = 0; i < persons.size(); i++)
+			persons[i]->Draw(window, camera);
+		control.Draw_Interface(window);
 
 		glfwSwapBuffers(window);
 

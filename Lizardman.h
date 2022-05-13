@@ -23,7 +23,8 @@ public:
 	//float x_move, y_move;
 
 	//Lizardman(const char* vertexFile, const char* fragmentFile, const char*, const char*, const char*, const char*, const char*, const char*, const char*, float x_, float y_, float z_, float sprite_h_);
-	Lizardman(const char* vertexFile, const char* fragmentFile, const char*, const char*, const char*, const char*, const char*, const char*, const char*, float x_, float y_, float z_, float sprite_h_);
+	Lizardman(const char* vertexFile, const char* fragmentFile, const char*, const char*, const char*, const char*, const char*, const char*, const char*, float x_, float y_, float z_, float sprite_h_,
+			  int walk_range);
 	~Lizardman();
 
 	//func of anime
