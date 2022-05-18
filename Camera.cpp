@@ -19,7 +19,8 @@ void Camera::Matrix(GLuint& shaderProgram, const char* uniform)
 		//2 - куда хотим посмотреть, тут работает сложение векторов и единичные вектора.
 		//3 - вектор вверх, Orientation вектор всегда единичный и его исп как вектор на кот хотим посмотреть
 
-//	projection = glm::perspective(glm::radians(FOVdeg), (float)(width / height), nearPlane, farPlane);//вычисл перспективу
+	//calculate perspective, needs if size of screen changes
+	projection = glm::perspective(glm::radians(45.0f), (float(WIDTH_SCREEN) / float(HEIGHT_SCREEN)), 0.1f, 100.0f);
 
 	glUniformMatrix4fv(glGetUniformLocation(shaderProgram, uniform), 1, GL_FALSE, glm::value_ptr(projection * view));//экспортируем матрицу в vertex shader ч/з uniform, матрицы перемноженные
 }

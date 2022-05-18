@@ -184,7 +184,8 @@ bool Lizardman::Move(float x_, float y_, float z_)
 			x = x_;
 		}
 	}
-	else {
+	if (x > x_)
+	{
 		//x -= speed_move;
 		x -= speed_move * past_time;
 		change_Direction(true);
@@ -206,7 +207,8 @@ bool Lizardman::Move(float x_, float y_, float z_)
 			y = -y_;
 		}
 	}
-	else {
+	if (y > -y_) 
+	{
 		//y -= speed_move;
 		y -= speed_move * past_time;
 		if (y < -y_)
@@ -264,22 +266,21 @@ bool Lizardman::Move(float x_, float y_, float z_)
 	}*/
 
 	//view = glm::mat4(1.0f);
-	if (z != z_)
+
+	if (z < z_)
 	{
+		z += speed_move;
+		if (z > z_)
+		{
+			z = z_;
+		}
+	}
+	if (z > z_)
+	{
+		z -= speed_move;
 		if (z < z_)
 		{
-			z += speed_move;
-			if (z > z_)
-			{
-				z = z_;
-			}
-		}
-		else {
-			z -= speed_move;
-			if (z < z_)
-			{
-				z = z_;
-			}
+			z = z_;
 		}
 	}
 

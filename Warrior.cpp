@@ -181,7 +181,8 @@ bool Warrior::Move(float x_, float y_, float z_)
 			//x = x_move = x_;
 		}
 	}
-	else {
+	if (x > x_)
+	{
 		//x -= speed_move;
 		x -= speed_move * past_time;
 		change_Direction(true);
@@ -205,7 +206,8 @@ bool Warrior::Move(float x_, float y_, float z_)
 			//y = y_move = -y_;
 		}
 	}
-	else {
+	if (y > -y_) 
+	{
 		//std::cout << "DOWN" << std::endl;
 		//y -= speed_move;
 		y -= speed_move * past_time;
@@ -276,7 +278,8 @@ bool Warrior::Move(float x_, float y_, float z_)
 			z = z_;
 		}
 	}
-	else {
+	if (z > z_) 
+	{
 		//z -= speed_move;
 		z -= speed_move * past_time;
 		if (z < z_)

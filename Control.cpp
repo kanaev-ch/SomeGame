@@ -138,6 +138,37 @@ void Control::Mark_Active(std::vector<Person*> persons, size_t size_persons, GLF
 			//save person object to pointer if coords are same
 			if (persons[i]->x == x && persons[i]->y == y && person_selected != persons[i])
 			{
+
+				//Block of clear last person if there was selected person allready
+				if (person_selected)
+				{
+					//clear array trajectory of move
+					for (int i = 0; i < person_selected->walk_range; i++)
+					{
+						person_selected->step[i].x = -1;
+						person_selected->step[i].y = 1;
+					}
+
+					//change anime to stand
+					person_selected->Change_Enum_Anime(0);
+
+					//Stop person
+					person_selected->walk_flag = false;
+
+					//Unselect person
+					person_selected->selected = false;
+
+					//clear pointer of selected person
+					person_selected = 0;
+
+					//unset go button in interface
+					battle_interface->go_flag = false;
+
+					//reset counter of steps
+					chk_walk_rng = 0;
+				}
+
+				//Select new person
 				person_selected = persons[i];
 				//std::cout << persons[i] << " " << person_selected << std::endl;
 			}
@@ -161,7 +192,7 @@ void Control::UnMark_Active(GLFWwindow* window)
 	}
 }
 
-void Control::Walk_Area_Draw(Camera& camera, Battle_Map& battle_map)
+void Control::Draw_Walk_Area(Camera& camera, Battle_Map& battle_map, std::vector <Person*> persons, size_t size_persons)
 {
 	//if person active and not moving
 	if (person_selected && !person_selected->walk_flag)
@@ -172,13 +203,15 @@ void Control::Walk_Area_Draw(Camera& camera, Battle_Map& battle_map)
 			{
 				//check the tile position in map
 				if (person_selected->x + i >= 0 && person_selected->x + i <= battle_map.map_w - 1 && person_selected->y - j >= -(battle_map.map_h - 1) && person_selected->y - j <= 0)
-					//Draw selected range tile tile
-					battle_map.map[int(-person_selected->y + j)][int(person_selected->x + i)]->Draw(camera, red);
+					//Not draw unwalk tiles
+					if (battle_map.No_Way_Object(person_selected->x + i, -person_selected->y + j, persons, size_persons))
+						//Draw selected range tiles
+						battle_map.map[int(-person_selected->y + j)][int(person_selected->x + i)]->Draw(camera, red);
 			}
 	}
 }
 
-void Control::Draw_Person_Way_Walk(Camera& camera, Battle_Map& battle_map)const
+void Control::Draw_Person_Way_Walk(Camera& camera, Battle_Map& battle_map, std::vector <Person*> persons, size_t size_persons)const
 {
 	if (person_selected)
 	{
@@ -186,11 +219,14 @@ void Control::Draw_Person_Way_Walk(Camera& camera, Battle_Map& battle_map)const
 			//Check tile is in map area
 			if (person_selected->step[i].x >= 0 && person_selected->step[i].x <= battle_map.map_w - 1 && 
 				person_selected->step[i].y >= -(battle_map.map_h - 1) && person_selected->step[i].y <= 0)
-				battle_map.map[int(-person_selected->step[i].y)][int(person_selected->step[i].x)]->Draw(camera, blue);
+				//Not draw unwalk tiles
+				if (battle_map.No_Way_Object(person_selected->step[i].x, -person_selected->step[i].y, persons, size_persons))
+					//Draw way tile
+					battle_map.map[int(-person_selected->step[i].y)][int(person_selected->step[i].x)]->Draw(camera, blue);
 	}
 }
 
-void Control::Save_Walk_Coords_to_Arr(GLFWwindow* window, Camera& camera, Battle_Map& battle_map)
+void Control::Save_Walk_Coords_to_Arr(GLFWwindow* window, Camera& camera, Battle_Map& battle_map, std::vector <Person*> persons, size_t size_persons)
 {
 	//If person selected, GO button off, and he is not move
 	if (person_selected && battle_interface->go_flag && !person_selected->walk_flag)
@@ -204,9 +240,13 @@ void Control::Save_Walk_Coords_to_Arr(GLFWwindow* window, Camera& camera, Battle
 			if (x_over >= person_selected->x - 1 && x_over <= person_selected->x + 1 &&
 				y_over >= person_selected->y - 1 && y_over <= person_selected->y + 1)
 			{
-				//Save way tile to first cell of way arr
-				person_selected->step[0].x = x_over;
-				person_selected->step[0].y = y_over;
+				//Don't save way tile to arr AND don't RMB fo walk if NO WAY TILE
+				if (battle_map.No_Way_Object(x_over, -y_over, persons, size_persons))
+				{
+					//Save way tile to first cell of way arr
+					person_selected->step[0].x = x_over;
+					person_selected->step[0].y = y_over;
+				}
 						
 				//std::cout << x_over << " - " << y_over << std::endl;
 
@@ -215,13 +255,15 @@ void Control::Save_Walk_Coords_to_Arr(GLFWwindow* window, Camera& camera, Battle
 				{
 					person_selected->step[i].x = -1.0f;
 					person_selected->step[i].y =  1.0f;
+
+					//By RMB activate move person flag
+					if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)//if RMB pressed
+					{
+						person_selected->walk_flag = true;
+					}
 				}
 
-				//By RMB activate move person flag
-				if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)//if RMB pressed
-				{
-					person_selected->walk_flag = true;
-				}
+				
 			}
 
 			//Block of check second tile, nearest to ferst tile in arr way
@@ -230,15 +272,21 @@ void Control::Save_Walk_Coords_to_Arr(GLFWwindow* window, Camera& camera, Battle
 				if (x_over >= person_selected->step[0].x - 1 && x_over <= person_selected->step[0].x + 1 &&
 					y_over >= person_selected->step[0].y - 1 && y_over <= person_selected->step[0].y + 1)
 				{
-					//Save way tile to second cell of way arr
-					person_selected->step[1].x = x_over;
-					person_selected->step[1].y = y_over;
-
-					//By RMB activate move person flag
-					if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)//if RMB pressed
+					//Don't save way tile to arr AND don't RMB fo walk if NO WAY TILE
+					if (battle_map.No_Way_Object(x_over, -y_over, persons, size_persons))
 					{
-						person_selected->walk_flag = true;
+						//Save way tile to first cell of way arr
+						person_selected->step[1].x = x_over;
+						person_selected->step[1].y = y_over;
+
+						//By RMB activate move person flag
+						if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)//if RMB pressed
+						{
+							person_selected->walk_flag = true;
+						}
 					}
+
+					
 				}
 			}
 
@@ -251,9 +299,19 @@ void Control::Save_Walk_Coords_to_Arr(GLFWwindow* window, Camera& camera, Battle
 			if (x_over >= person_selected->x - 1 && x_over <= person_selected->x + 1 &&
 				y_over >= person_selected->y - 1 && y_over <= person_selected->y + 1)
 			{
-				//Save way tile to second cell of way arr
-				person_selected->step[0].x = x_over;
-				person_selected->step[0].y = y_over;
+				//Don't save way tile to arr AND don't RMB fo walk if NO WAY TILE
+				if (battle_map.No_Way_Object(x_over, -y_over, persons, size_persons))
+				{
+					//Save way tile to second cell of way arr
+					person_selected->step[0].x = x_over;
+					person_selected->step[0].y = y_over;
+
+					//By RMB activate move person flag
+					if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)//if RMB pressed
+					{
+						person_selected->walk_flag = true;
+					}
+				}
 
 				//std::cout << x_over << " - " << y_over << std::endl;
 
@@ -263,12 +321,6 @@ void Control::Save_Walk_Coords_to_Arr(GLFWwindow* window, Camera& camera, Battle
 					person_selected->step[i].x = -1.0f;
 					person_selected->step[i].y = 1.0f;
 				}
-
-				//By RMB activate move person flag
-				if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)//if RMB pressed
-				{
-					person_selected->walk_flag = true;
-				}
 			}
 
 			//Block of check second tile, nearest to first tile in arr way
@@ -277,14 +329,18 @@ void Control::Save_Walk_Coords_to_Arr(GLFWwindow* window, Camera& camera, Battle
 				if (x_over >= person_selected->step[0].x - 1 && x_over <= person_selected->step[0].x + 1 &&
 					y_over >= person_selected->step[0].y - 1 && y_over <= person_selected->step[0].y + 1)
 				{
-					//Save way tile to second cell of way arr
-					person_selected->step[1].x = x_over;
-					person_selected->step[1].y = y_over;
-
-					//By RMB activate move person flag
-					if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)//if RMB pressed
+					//Don't save way tile to arr AND don't RMB fo walk if NO WAY TILE
+					if (battle_map.No_Way_Object(x_over, -y_over, persons, size_persons))
 					{
-						person_selected->walk_flag = true;
+						//Save way tile to second cell of way arr
+						person_selected->step[1].x = x_over;
+						person_selected->step[1].y = y_over;
+
+						//By RMB activate move person flag
+						if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)//if RMB pressed
+						{
+							person_selected->walk_flag = true;
+						}
 					}
 				}
 			}
@@ -295,14 +351,18 @@ void Control::Save_Walk_Coords_to_Arr(GLFWwindow* window, Camera& camera, Battle
 				if (x_over >= person_selected->step[1].x - 1 && x_over <= person_selected->step[1].x + 1 &&
 					y_over >= person_selected->step[1].y - 1 && y_over <= person_selected->step[1].y + 1)
 				{
-					//Save way tile to second cell of way arr
-					person_selected->step[2].x = x_over;
-					person_selected->step[2].y = y_over;
-
-					//By RMB activate move person flag
-					if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)//if RMB pressed
+					//Don't save way tile to arr AND don't RMB fo walk if NO WAY TILE
+					if (battle_map.No_Way_Object(x_over, -y_over, persons, size_persons))
 					{
-						person_selected->walk_flag = true;
+						//Save way tile to second cell of way arr
+						person_selected->step[2].x = x_over;
+						person_selected->step[2].y = y_over;
+
+						//By RMB activate move person flag
+						if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)//if RMB pressed
+						{
+							person_selected->walk_flag = true;
+						}
 					}
 				}
 			}

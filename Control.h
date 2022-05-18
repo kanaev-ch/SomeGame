@@ -52,16 +52,16 @@ public:
 	void UnMark_Active(GLFWwindow* window);
 
 	//Func draw walk range tiles around active person
-	void Walk_Area_Draw(Camera& camera, Battle_Map &);
+	void Draw_Walk_Area(Camera& camera, Battle_Map &, std::vector <Person*> persons, size_t size_persons);
 
 	//Func of save mouse over coords to person walk-way array
-	void Save_Walk_Coords_to_Arr(GLFWwindow* window, Camera& camera, Battle_Map&);
+	void Save_Walk_Coords_to_Arr(GLFWwindow* window, Camera& camera, Battle_Map&, std::vector <Person*> persons, size_t size_persons);
 
 	//Func draw tile under mouse when mouse over it
 	void Draw_Mouse_Over_Tile(Camera& camera, Battle_Map& battle_map, CLR clr)const;
 
 	//Func draw tile of person array way direction
-	void Draw_Person_Way_Walk(Camera& camera, Battle_Map& battle_map)const;
+	void Draw_Person_Way_Walk(Camera& camera, Battle_Map& battle_map, std::vector <Person*> persons, size_t size_persons)const;
 
 	//
 	void Melee_Attack(GLFWwindow* window, std::vector<Person*> persons, size_t size_persons);

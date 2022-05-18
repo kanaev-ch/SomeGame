@@ -15,14 +15,31 @@
 #include "Control.h"
 #include "Battle_Interface.h"
 
+//Call back func for changing size of screen if it changes, glfw call it every time if screen changing
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	//new viewport
+	glViewport(0, 0, width, height);
+
+	//new zise of screen
+	WIDTH_SCREEN = width;
+	HEIGHT_SCREEN = height;
+}
+
+
 int main()
 {
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+	//windowed screen
 	GLFWwindow* window = glfwCreateWindow(WIDTH_SCREEN, HEIGHT_SCREEN, "SomeGame", NULL, NULL);
+	//Full screen
 	//GLFWwindow* window = glfwCreateWindow(WIDTH_SCREEN, HEIGHT_SCREEN, "SomeGame", glfwGetPrimaryMonitor(), NULL);
+
+	//if window can't create
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -30,8 +47,16 @@ int main()
 		return -1;
 	}
 
+	//talking glfw cotext of our window is main
 	glfwMakeContextCurrent(window);
+
+	//Tell glfw what callback func must call when size of screen changing
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	
+	//Load Glad
 	gladLoadGL();
+
+	//viewport screen
 	glViewport(0, 0, WIDTH_SCREEN, HEIGHT_SCREEN);
 
 	//Transparensy ON
@@ -89,7 +114,7 @@ int main()
 		//Read and save all coords into variables
 		control.Mouse_Over_Battle_Map(window, camera, battle_map);
 		control.Click_Lmb(window, camera, persons, persons.size());
-		control.Save_Walk_Coords_to_Arr(window, camera, battle_map);
+		control.Save_Walk_Coords_to_Arr(window, camera, battle_map, persons, persons.size());
 
 		//Clear all scene
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -97,9 +122,9 @@ int main()
 
 		control.Mark_Active(persons, persons.size(), window);
 		control.UnMark_Active(window);
-		control.Draw_Person_Way_Walk(camera, battle_map);
+		control.Draw_Person_Way_Walk(camera, battle_map, persons, persons.size());
 		control.Draw_Mouse_Over_Tile(camera, battle_map, green);
-		control.Walk_Area_Draw(camera, battle_map);
+		control.Draw_Walk_Area(camera, battle_map, persons, persons.size());
 
 		control.Move();
 
