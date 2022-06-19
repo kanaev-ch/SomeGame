@@ -2,9 +2,10 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <vector>
+#include <time.h>
 
 #include "Global_Time.h"
-#include "Tile.h"
+//#include "Tile.h"
 #include "Camera.h"
 #include "Battle_Map.h"
 #include "Person.h"
@@ -12,8 +13,9 @@
 #include "Warrior.h"
 #include "Lizardman.h"
 #include "Data.h"
-#include "Control.h"
-#include "Battle_Interface.h"
+//#include "Control.h"
+//#include "Battle_Interface.h"
+#include "Battle.h"
 
 //Call back func for changing size of screen if it changes, glfw call it every time if screen changing
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -29,6 +31,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 int main()
 {
+	//For randomize
+	srand((unsigned)time(NULL)); rand(); rand();
+
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -67,13 +72,13 @@ int main()
 	std::vector <Person*> persons;
 	persons.push_back(new Warrior("Person.vert", "Person.frag", "Textures/Persons/Warrior/warrior_stand_1.png", "Textures/Persons/Warrior/warrior_run_3.png",
 		"Textures/Persons/Warrior/warrior_strike_sword_4.png", "Textures/Persons/Warrior/warrior_injured_2.png", "Textures/Persons/Warrior/warrior_defends_2.png",
-		"Textures/Persons/Warrior/warrior_fall_3.png", "Textures/Persons/Warrior/warrior_dead_1.png", 4, 3, 0, 2, 2));
-	persons.push_back(new Lizardman("Person.vert", "Person.frag", "Textures/Persons/Lizardman/Lizardman_stand_1.png", "Textures/Persons/Lizardman/Lizardman_run_3.png",
+		"Textures/Persons/Warrior/warrior_fall_3.png", "Textures/Persons/Warrior/warrior_dead_1.png", 8, 3, 0, 2, 2));
+	/*persons.push_back(new Lizardman("Person.vert", "Person.frag", "Textures/Persons/Lizardman/Lizardman_stand_1.png", "Textures/Persons/Lizardman/Lizardman_run_3.png",
 		"Textures/Persons/Lizardman/Lizardman_strike_sword_3.png", "Textures/Persons/Lizardman/Lizardman_injured_2.png", "Textures/Persons/Lizardman/Lizardman_defends_2.png",
-		"Textures/Persons/Lizardman/Lizardman_fall_3.png", "Textures/Persons/Lizardman/Lizardman_dead_1.png", 5, 5, 0, 2, 3));
+		"Textures/Persons/Lizardman/Lizardman_fall_3.png", "Textures/Persons/Lizardman/Lizardman_dead_1.png", 5, 5, 0, 2, 3));*/
 	persons.push_back(new Warrior("Person.vert", "Person.frag", "Textures/Persons/Warrior/warrior_stand_1.png", "Textures/Persons/Warrior/warrior_run_3.png",
 		"Textures/Persons/Warrior/warrior_strike_sword_4.png", "Textures/Persons/Warrior/warrior_injured_2.png", "Textures/Persons/Warrior/warrior_defends_2.png",
-		"Textures/Persons/Warrior/warrior_fall_3.png", "Textures/Persons/Warrior/warrior_dead_1.png", 6, 6, 0, 2, 2));
+		"Textures/Persons/Warrior/warrior_fall_3.png", "Textures/Persons/Warrior/warrior_dead_1.png", 8, 6, 0, 2, 2));
 	//persons[0]->selected = true;
 	//persons[1]->selected = true;
 	//persons[2]->selected = true;
@@ -84,7 +89,9 @@ int main()
 
 	Battle_Map battle_map;
 
-	Control control;
+	//Control control;
+
+	Battle battle(persons);
 
 	//Battle_Interface battle_interface("Rect.vert", "Rect.frag", "Textures/Battle_Interface/background.png", 
 	//								  "Textures/Battle_Interface/go.png", "Textures/Battle_Interface/go_act.png", 
@@ -109,30 +116,40 @@ int main()
 		battle_map.Draw(camera, rgb);
 		for (int i = 0; i < persons.size(); i++)
 			persons[i]->Draw(window, camera);
-		control.Draw_Interface(window);
+		battle.Draw_Interface(window);
 
 		//Read and save all coords into variables
-		control.Mouse_Over_Battle_Map(window, camera, battle_map);
-		control.Click_Lmb(window, camera, persons, persons.size());
-		control.Save_Walk_Coords_to_Arr(window, camera, battle_map, persons, persons.size());
+		battle.Mouse_Over_Battle_Map(window, camera, battle_map);
+		battle.Click_Lmb_on_Top_interface(window, camera, persons);
+		battle.Click_Lmb_on_Main_Screen(window, camera, persons);
+		//battle.Click_Lmb(window, camera, persons, persons.size());
+		battle.Save_Walk_Coords_to_Arr(window, camera, battle_map, persons);
 
 		//Clear all scene
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-		control.Mark_Active(persons, persons.size(), window);
-		control.UnMark_Active(window);
-		control.Draw_Person_Way_Walk(camera, battle_map, persons, persons.size());
-		control.Draw_Mouse_Over_Tile(camera, battle_map, green);
-		control.Draw_Walk_Area(camera, battle_map, persons, persons.size());
+		//battle.Mark_Active(persons, persons.size(), window);
+		//battle.Mark_Active_By_Person(persons);
+		battle.Switch_to_Next_Step_Person(persons);
+		battle.Switch_to_Next_Person(persons);
+		//battle.Switch_to_Next_Phase(persons);
+		//battle.UnMark_Active(window);
+		battle.Draw_Person_Way_Walk(camera, battle_map, persons);
+		battle.Draw_Mouse_Over_Tile(camera, battle_map, green);
+		battle.Draw_Walk_Area(camera, battle_map, persons);
+		battle.Melee_Attack(window, persons);
 
-		control.Move();
+		battle.Move(persons, window);
+
+		battle.Skipping_Step(window);
 
 		//Second draw ALL scene
 		battle_map.Draw(camera, rgb);
 		for (int i = 0; i < persons.size(); i++)
 			persons[i]->Draw(window, camera);
-		control.Draw_Interface(window);
+		//persons[1]->Draw(window, camera);
+		battle.Draw_Interface(window);
 
 		glfwSwapBuffers(window);
 
@@ -142,7 +159,7 @@ int main()
 
 
 		//Temporary exit
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)//нажатие F
+		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		{
 			break;
 		}

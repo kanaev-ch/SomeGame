@@ -10,7 +10,7 @@ Lizardman::Lizardman(const char* vertexFile, const char* fragmentFile, const cha
 	//change global height of poligon
 	vertices[10] = vertices[18] = sprite_h_;
 
-	direction = false;
+	direction = right;
 
 	speed_move = 0.004f;
 
@@ -26,9 +26,33 @@ Lizardman::Lizardman(const char* vertexFile, const char* fragmentFile, const cha
 
 	step = new Step[walk_range];
 
-	step[0].x = -1.0f; step[0].y = -1.0f; step[0].z = 0.0f;
-	step[1].x = +1.0f; step[1].y = +1.0f; step[1].z = 0.0f;
-	step[2].x = +1.0f; step[2].y = +1.0f; step[2].z = 0.0f;
+	/*step[0].x = -1.0f; step[0].y = +1.0f; step[0].z = 0.0f;
+	step[1].x = -1.0f; step[1].y = +1.0f; step[1].z = 0.0f;
+	step[2].x = -1.0f; step[2].y = +1.0f; step[2].z = 0.0f;*/
+	//clear array trajectory of move
+	for (int i = 0; i < walk_range; i++)
+	{
+		step[i].x = -1.0f;
+		step[i].y =  1.0f;
+		step[i].z =  0.0f;
+	}
+
+	//init arr of lifes steps person
+	size_lifes_steps = 2;
+	//lifes_steps = new int[size_lifes_steps];
+	lifes_steps.resize(size_lifes_steps);
+	//init arr of lifes steps person cells by random from 1 to 6
+	for (int i = 0; i < size_lifes_steps; i++)
+		lifes_steps[i] = rand() % 6 + 1;
+
+	strength = 2;
+	agility = 3;
+
+	initiative = 5;
+
+	person_type = enemy;
+
+	is_anime_cycle_playing = false;
 
 	std::string vertexCode = get_file_contents(vertexFile);//func takes simbols from file to string
 	std::string fragmentCode = get_file_contents(fragmentFile);//func takes simbols from file to string
@@ -140,7 +164,8 @@ Lizardman::~Lizardman()
 	glDeleteTextures(1, &texture_defends);
 	glDeleteTextures(1, &texture_fall);
 	glDeleteTextures(1, &texture_dead);
-	delete[]step;
+	delete[]step; 
+	//delete[]lifes_steps;
 }
 
 //func anime bind by cycle
@@ -157,18 +182,29 @@ void Lizardman::Anime_NON_Cycle(int frames, GLuint* VAO, int size_VAO, GLuint& t
 
 	//anime if not dead
 	if (time >= frames * size_VAO - 1 && anime != fall)
+	{
 		anime = stand;
+
+		//OFF flag when non cycle anime stop
+		is_anime_cycle_playing = false;
+	}
 	//anime if dead after fall
 	else if (time >= frames * size_VAO - 1 && anime == fall)
+	{
 		anime = dead;
 
-	int count = bind_VAO(frames, float(global_time), VAO, size_VAO, texture);
+		//OFF flag when non cycle anime stop
+		is_anime_cycle_playing = false;
+	}
+
+	//int count = bind_VAO(frames, float(global_time), VAO, size_VAO, texture);
+	bind_VAO(frames, float(global_time), VAO, size_VAO, texture);
 }
 
-void Lizardman::Change_Enum_Anime(int anime_)
+/*void Lizardman::Change_Enum_Anime(int anime_)
 {
 	anime = ANIMATION_ENUM(anime_);
-}
+}*/
 
 bool Lizardman::Move(float x_, float y_, float z_)
 {
@@ -178,7 +214,8 @@ bool Lizardman::Move(float x_, float y_, float z_)
 	{
 		//x += speed_move;
 		x += speed_move * past_time;
-		change_Direction(false);
+		//change_Direction(false);
+		change_Direction(right);
 		if (x > x_)
 		{
 			x = x_;
@@ -188,7 +225,8 @@ bool Lizardman::Move(float x_, float y_, float z_)
 	{
 		//x -= speed_move;
 		x -= speed_move * past_time;
-		change_Direction(true);
+		//change_Direction(true);
+		change_Direction(left);
 		if (x < x_)
 		{
 			x = x_;

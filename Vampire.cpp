@@ -8,7 +8,8 @@ Vampire::Vampire(const char* vertexFile, const char* fragmentFile, const char* i
 	//change global height of poligon
 	vertices[10] = vertices[18] = sprite_h_;
 
-	direction = false;
+	//direction = false;
+	direction = right;
 
 	speed_move = 0.001f;
 
@@ -140,7 +141,8 @@ void Vampire::Anime_NON_Cycle(int frames, GLuint* VAO, int size_VAO, GLuint& tex
 	else if (time >= frames * size_VAO - 1 && anime == fall)
 		anime = dead;
 
-	int count = bind_VAO(frames, float(global_time), VAO, size_VAO, texture);
+	//int count = bind_VAO(frames, float(global_time), VAO, size_VAO, texture);
+	bind_VAO(frames, float(global_time), VAO, size_VAO, texture);
 }
 
 /*

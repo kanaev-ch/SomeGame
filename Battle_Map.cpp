@@ -74,7 +74,7 @@ Battle_Map::Battle_Map(float z)
 		}
 }
 
-bool Battle_Map::No_Way_Object(float x, float y, std::vector <Person*> persons, size_t size_persons)const
+bool Battle_Map::No_Way_Object(float x, float y, std::vector <Person*>& persons)const
 {
 	//If tile no way
 	if (map_prototype[int(y)][int(x)] == 'F')
@@ -84,7 +84,7 @@ bool Battle_Map::No_Way_Object(float x, float y, std::vector <Person*> persons, 
 	}
 
 	//If there isa person on tile
-	for (int i = 0; i < size_persons; i++)
+	for (int i = 0; i < persons.size(); i++)
 	{
 		if (x == persons[i]->x && y == -persons[i]->y)
 		{

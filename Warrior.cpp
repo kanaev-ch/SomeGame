@@ -8,7 +8,8 @@ Warrior::Warrior(const char* vertexFile, const char* fragmentFile, const char* i
 	//change global height of poligon
 	vertices[10] = vertices[18] = sprite_h_;
 
-	direction = true;
+	//direction = true;
+	direction = left;
 
 	speed_move = 0.003f;
 
@@ -24,8 +25,33 @@ Warrior::Warrior(const char* vertexFile, const char* fragmentFile, const char* i
 
 	step = new Step[walk_range];
 
-	step[0].x = -1.0f; step[0].y = -1.0f; step[0].z = 0.0f;
-	step[1].x = +1.0f; step[1].y = +1.0f; step[1].z = 0.0f;
+	/*step[0].x = -1.0f; step[0].y = +1.0f; step[0].z = 0.0f;
+	step[1].x = -1.0f; step[1].y = +1.0f; step[1].z = 0.0f;*/
+	//clear array trajectory of move
+	for (int i = 0; i < walk_range; i++)
+	{
+		step[i].x = -1.0f;
+		step[i].y =  1.0f;
+		step[i].z =  0.0f;
+	}
+
+	//init arr of lifes steps person
+	size_lifes_steps = 4;
+	//lifes_steps = new int[size_lifes_steps];
+	lifes_steps.resize(size_lifes_steps);
+	//init arr of lifes steps person cells by random from 1 to 6
+	for (int i = 0; i < size_lifes_steps; i++)
+		//lifes_steps[i] = rand() % 6 + 1;
+		lifes_steps[i] = i + 2;
+
+	strength = 4;
+	agility = 2;
+
+	initiative = 2;
+
+	person_type = hero;
+
+	is_anime_cycle_playing = false;
 
 	std::string vertexCode = get_file_contents(vertexFile);//func takes simbols from file to string
 	std::string fragmentCode = get_file_contents(fragmentFile);//func takes simbols from file to string
@@ -138,6 +164,7 @@ Warrior::~Warrior()
 	glDeleteTextures(1, &texture_fall);
 	glDeleteTextures(1, &texture_dead);
 	delete[]step;
+	//delete[]lifes_steps;
 }
 
 //func anime bind by cycle
@@ -154,18 +181,29 @@ void Warrior::Anime_NON_Cycle(int frames, GLuint* VAO, int size_VAO, GLuint& tex
 
 	//anime if not dead
 	if (time >= frames * size_VAO - 1 && anime != fall)
+	{
 		anime = stand;
+
+		//OFF flag when non cycle anime stop
+		is_anime_cycle_playing = false;
+	}
 	//anime if dead after fall
 	else if (time >= frames * size_VAO - 1 && anime == fall)
+	{
 		anime = dead;
 
-	int count = bind_VAO(frames, float(global_time), VAO, size_VAO, texture);
+		//OFF flag when non cycle anime stop
+		is_anime_cycle_playing = false;
+	}
+
+	//int count = bind_VAO(frames, float(global_time), VAO, size_VAO, texture);
+	bind_VAO(frames, float(global_time), VAO, size_VAO, texture);
 }
 
-void Warrior::Change_Enum_Anime(int anime_)
+/*void Warrior::Change_Enum_Anime(int anime_)
 {
 	anime = ANIMATION_ENUM(anime_);
-}
+}*/
 
 bool Warrior::Move(float x_, float y_, float z_)
 {
@@ -174,7 +212,8 @@ bool Warrior::Move(float x_, float y_, float z_)
 	{
 		//x += speed_move;
 		x += speed_move * past_time;
-		change_Direction(false);
+		//change_Direction(false);
+		change_Direction(right);
 		if (x > x_)
 		{
 			x = x_;
@@ -185,7 +224,8 @@ bool Warrior::Move(float x_, float y_, float z_)
 	{
 		//x -= speed_move;
 		x -= speed_move * past_time;
-		change_Direction(true);
+		//change_Direction(true);
+		change_Direction(left);
 		if (x < x_)
 		{
 			x = x_;
@@ -217,56 +257,6 @@ bool Warrior::Move(float x_, float y_, float z_)
 			//y = y_move = -y_;
 		}
 	}
-
-
-	//block of calculate move by X with range
-	/*if (x_ - x_move <= walk_range_x && x_ - x_move > 0)
-	{
-		//std::cout << "right x" << x << std::endl;
-		//x += speed_move;
-		x += speed_move * past_time;
-		change_Direction(false);
-		if (x > x_)
-		{
-			x = x_move = x_;
-		}
-	}
-	else if (x_ - x_move >= -walk_range_x && x_ - x_move < 0)
-	{
-		//std::cout << "left x" << x << std::endl;
-		//x -= speed_move;
-		x -= speed_move * past_time;
-		change_Direction(true);
-		if (x < x_)
-		{
-			x = x_move = x_;
-		}
-	}
-
-	//view = glm::mat4(1.0f);
-	//block of calculate move by Y with range
-	if (-y_ - y_move <= walk_range_y && -y_ - y_move > 0)
-	{
-		//std::cout << "UP" << -y_ - y_move << std::endl;
-		//y += speed_move;
-		y += speed_move * past_time;
-		if (y > -y_)
-		{
-			y = y_move = -y_;
-		}
-	}
-	else if (-y_ - y_move >= -walk_range_y && -y_ - y_move < 0)
-	{
-		//std::cout << "DOWN" << -y_ - y_move << std::endl;
-		//y -= speed_move;
-		y -= speed_move * past_time;
-		if (y < -y_)
-		{
-			y = y_move = -y_;
-		}
-	}*/
-
-	//std::cout << -y_ - y_move << std::endl;
 
 	//view = glm::mat4(1.0f);
 	if (z < z_)
@@ -371,10 +361,6 @@ void Warrior::Draw(GLFWwindow* window, Camera& camera)
 	case defends:		Anime_NON_Cycle(50, VAO_2, sizeof(VAO_2) / sizeof(int), texture_defends); break;
 	case fall:			Anime_NON_Cycle(50, VAO_3, sizeof(VAO_3) / sizeof(int), texture_fall); break;
 	case dead:			Anime_Cycle(50, VAO_1, sizeof(VAO_1) / sizeof(int), texture_dead); break;
-/*	case stand: Stand(50, VAO_2, sizeof(VAO_2) / sizeof(int), texture_stand); break;
-	case walk: Walk(50, VAO_6, sizeof(VAO_6) / sizeof(int), texture_walk); break;
-	case strike_sword: Strike_Sword(50, VAO_5, sizeof(VAO_5) / sizeof(int), texture_strike_sword); break;
-	case injured: Injured(50, VAO_2, sizeof(VAO_2) / sizeof(int), texture_injured); break;*/
 	}
 
 	//bind_VAO(25, time_, VAO_5, sizeof(VAO_5) / sizeof(int), texture_strike_sword);

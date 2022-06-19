@@ -81,16 +81,16 @@ void configure_VAO_VBO(GLfloat * vertices, int sizeof_vertices, GLuint * indices
 
 	if (direction)
 	{
-		vertices[6] = 0.0f;
-		vertices[14] = 0.0f;
-		vertices[22] = frame;
-		vertices[30] = frame;
-	}
-	else {
 		vertices[6] = frame;
 		vertices[14] = frame;
 		vertices[22] = 0.0f;
 		vertices[30] = 0.0f;
+	}
+	else {
+		vertices[6] = 0.0f;
+		vertices[14] = 0.0f;
+		vertices[22] = frame;
+		vertices[30] = frame;
 	}
 	//create VAO, VBO, EBO objects in vector arrays with parameters
 	for (int i = 0; i < count_frames; i++)
@@ -194,7 +194,8 @@ void Person::change_Height_Sprite(float sprite_h_)
 	configure_VAO_VBO(vertices, sizeof(vertices), indices, sizeof(indices), VAO_10, VBO_10, 10, EBO, direction);
 }
 
-void Person::change_Direction(bool direction_)
+//void Person::change_Direction(bool direction_)
+void Person::change_Direction(PERSON_DIRECTION direction_)
 {
 	direction = direction_;
 
@@ -292,7 +293,8 @@ void Person::bind_Texture(GLuint& texture_)
 }
 
 
-int Person::bind_VAO(int frame_milliseconds_, float time_, GLuint * VAO, int size_VAO, GLuint& texture_)
+//int Person::bind_VAO(int frame_milliseconds_, float time_, GLuint * VAO, int size_VAO, GLuint& texture_)
+void Person::bind_VAO(int frame_milliseconds_, float time_, GLuint * VAO, int size_VAO, GLuint& texture_)
 {
 	int i = 0;
 	int frame_milliseconds = frame_milliseconds_;
@@ -312,7 +314,7 @@ int Person::bind_VAO(int frame_milliseconds_, float time_, GLuint * VAO, int siz
 
 	//bind texture
 	bind_Texture(texture_);
-	return i;
+	//return i;
 }
 
 void Person::Selected_Uniform_Load(bool flag)
@@ -321,7 +323,10 @@ void Person::Selected_Uniform_Load(bool flag)
 	glUniform1i(uniSelected, flag);//загружаем в юниформу флаг подсветки текстуры
 }
 
-
+void Person::Change_Enum_Anime(int anime_)
+{
+	anime = ANIMATION_ENUM(anime_);
+}
 
 Person::~Person()
 {

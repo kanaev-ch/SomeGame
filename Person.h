@@ -78,6 +78,9 @@ public:
 	//uniform address for flag of background light if selected
 	GLuint uniSelected;
 
+	//enum of choice anime
+	ANIMATION_ENUM anime;
+
 	//matrix position of tile and its coordinates
 	glm::mat4 view;
 	float x, y, z;
@@ -86,13 +89,29 @@ public:
 	float sprite_h;
 
 	//directoin of person, true if to left
-	bool direction;
+	//bool direction;
+	PERSON_DIRECTION direction;
 
 	//speed of moving person
 	float speed_move;
 
 	//flag selected person or not
 	bool selected;
+
+	//Array and its size of lifes and steps of person
+	std::vector <int> lifes_steps;
+	//int* lifes_steps;
+	int size_lifes_steps;
+
+	//Strength and agility
+	int strength;
+	int agility;
+
+	//Initiative of person
+	int initiative;
+
+	//Type of person
+	PERSON_TYPE person_type;
 
 	//Range how far person move by cells
 	//float walk_range_x, walk_range_y;
@@ -106,13 +125,20 @@ public:
 	//Flag person move or not
 	bool walk_flag;
 
+	//Arr with whom person is in skirmish
+	std::vector <Person*> skirmish;
+
+	//Flag ON if non cycle anime playing, OFF when it stop
+	bool is_anime_cycle_playing;
+
 //	Person(const char* vertexFile, const char* fragmentFile, const char* image, float x_, float y_, float z_, float sprite_h_);
 	virtual ~Person();
 
 //changing height of sprite
 	void change_Height_Sprite(float sprite_h_);
 
-	void change_Direction(bool direction_);
+	//void change_Direction(bool direction_);
+	void change_Direction(PERSON_DIRECTION direction_);
 
 	//void Move(float x_, float y_, float z_);
 	virtual bool Move(float x_, float y_, float z_) = 0;
@@ -121,12 +147,14 @@ public:
 	void bind_Texture(GLuint& texture_);
 
 	//bind VAO
-	int bind_VAO(int frame_milliseconds_, float time, GLuint* VAO, int size_VAO, GLuint& texture_);
+	//int bind_VAO(int frame_milliseconds_, float time, GLuint* VAO, int size_VAO, GLuint& texture_);
+	void bind_VAO(int frame_milliseconds_, float time, GLuint* VAO, int size_VAO, GLuint& texture_);
 
 	//func of loading select flag in uniform for back light if Person selected
 	void Selected_Uniform_Load(bool);
 
-	virtual void Change_Enum_Anime(int) = 0;
+	//virtual void Change_Enum_Anime(int) = 0;
+	virtual void Change_Enum_Anime(int);
 
 	virtual void Draw(GLFWwindow* window, Camera& camera) = 0;
 

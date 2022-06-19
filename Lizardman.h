@@ -16,8 +16,8 @@ public:
 	GLuint texture_dead;
 
 	//enum of choice anime
-	enum ANIMATION_ENUM {stand, walk, strike_sword, injured, defends, fall, dead};
-	ANIMATION_ENUM anime;
+	//enum ANIMATION_ENUM {stand, walk, strike_sword, injured, defends, fall, dead};
+	//ANIMATION_ENUM anime;
 
 	//temp save current coords of person for calc range move
 	//float x_move, y_move;
@@ -31,7 +31,7 @@ public:
 	void Anime_Cycle(int frames, GLuint* VAO, int size_VAO, GLuint& texture);
 	void Anime_NON_Cycle(int frames, GLuint* VAO, int size_VAO, GLuint& texture);
 
-	void Change_Enum_Anime(int);
+	//void Change_Enum_Anime(int);
 
 	//void Move(float x_, float y_, float z_);
 	bool Move(float x_, float y_, float z_);

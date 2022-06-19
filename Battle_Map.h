@@ -11,12 +11,12 @@ class Battle_Map
 {
 public:
 	char map_prototype[8][12] = {
-	{'G','G','G','G','G','G','G','G','G','F','G','F'},
-	{'G','G','G','G','G','G','G','G','G','G','G','F'},
-	{'G','G','G','G','G','G','G','G','G','G','G','F'},
-	{'G','G','G','G','G','G','G','G','G','G','G','F'},
+	{'G','G','G','F','G','G','G','G','G','F','G','F'},
+	{'G','G','G','F','G','G','G','G','G','G','G','F'},
+	{'G','G','G','F','G','G','G','G','G','G','G','F'},
+	{'G','G','G','F','G','G','G','G','G','G','G','F'},
 	{'G','G','G','F','G','G','G','F','G','G','G','F'},
-	{'G','G','G','G','G','G','G','G','G','G','G','F'},
+	{'G','G','G','F','G','G','G','G','G','G','G','F'},
 	{'G','G','G','G','G','G','G','G','G','G','G','F'},
 	{'G','G','G','F','G','G','G','G','G','G','G','F'},
 	};
@@ -36,7 +36,7 @@ public:
 	Battle_Map(float z);
 
 	//Check tiles walk or not
-	bool No_Way_Object(float x, float y, std::vector <Person*> persons, size_t size_persons)const;
+	bool No_Way_Object(float x, float y, std::vector <Person*>& persons)const;
 
 	void Draw(Camera & camera, CLR);
 
