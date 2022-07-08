@@ -42,7 +42,7 @@ Warrior::Warrior(const char* vertexFile, const char* fragmentFile, const char* i
 	//init arr of lifes steps person cells by random from 1 to 6
 	for (int i = 0; i < size_lifes_steps; i++)
 		//lifes_steps[i] = rand() % 6 + 1;
-		lifes_steps[i] = i + 2;
+		lifes_steps[i] = i + 3;
 
 	strength = 4;
 	agility = 2;
@@ -359,7 +359,9 @@ void Warrior::Draw(GLFWwindow* window, Camera& camera)
 	case strike_sword:	Anime_NON_Cycle(25, VAO_4, sizeof(VAO_4) / sizeof(int), texture_strike_sword); break;
 	case injured:		Anime_NON_Cycle(50, VAO_2, sizeof(VAO_2) / sizeof(int), texture_injured); break;
 	case defends:		Anime_NON_Cycle(50, VAO_2, sizeof(VAO_2) / sizeof(int), texture_defends); break;
-	case fall:			Anime_NON_Cycle(50, VAO_3, sizeof(VAO_3) / sizeof(int), texture_fall); break;
+	//case fall:			Anime_NON_Cycle(50, VAO_3, sizeof(VAO_3) / sizeof(int), texture_fall); break;
+		//IMPORTANT fall anime must be smaler by frames then strike_sword, or person will stand after dead
+	case fall:			Anime_NON_Cycle(50, VAO_2, sizeof(VAO_2) / sizeof(int), texture_fall); break;
 	case dead:			Anime_Cycle(50, VAO_1, sizeof(VAO_1) / sizeof(int), texture_dead); break;
 	}
 

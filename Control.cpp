@@ -173,8 +173,9 @@ void Control::Clear_Person_Selected()
 		person_selected->step[i].y =  1.0f;
 	}
 
-	//change anime to stand
-	person_selected->Change_Enum_Anime(0);
+	//change anime to stand ONLY if person not dead
+	if (person_selected->anime != dead)
+		person_selected->Change_Enum_Anime(stand);
 
 	//Stop person
 	person_selected->walk_flag = false;

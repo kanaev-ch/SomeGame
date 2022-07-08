@@ -83,10 +83,10 @@ bool Battle_Map::No_Way_Object(float x, float y, std::vector <Person*>& persons)
 		return false;	
 	}
 
-	//If there isa person on tile
+	//If there is a person on tile AND hi is not dead
 	for (int i = 0; i < persons.size(); i++)
 	{
-		if (x == persons[i]->x && y == -persons[i]->y)
+		if (x == persons[i]->x && y == -persons[i]->y && persons[i]->lifes_steps.size() > 0)
 		{
 			//std::cout << x << " ! " << y << std::endl;
 			return false;

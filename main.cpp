@@ -72,20 +72,20 @@ int main()
 	std::vector <Person*> persons;
 	persons.push_back(new Warrior("Person.vert", "Person.frag", "Textures/Persons/Warrior/warrior_stand_1.png", "Textures/Persons/Warrior/warrior_run_3.png",
 		"Textures/Persons/Warrior/warrior_strike_sword_4.png", "Textures/Persons/Warrior/warrior_injured_2.png", "Textures/Persons/Warrior/warrior_defends_2.png",
-		"Textures/Persons/Warrior/warrior_fall_3.png", "Textures/Persons/Warrior/warrior_dead_1.png", 8, 3, 0, 2, 2));
+		"Textures/Persons/Warrior/warrior_fall_2.png", "Textures/Persons/Warrior/warrior_dead_1.png", 8, 3, 0, 2, 2));
 	/*persons.push_back(new Lizardman("Person.vert", "Person.frag", "Textures/Persons/Lizardman/Lizardman_stand_1.png", "Textures/Persons/Lizardman/Lizardman_run_3.png",
 		"Textures/Persons/Lizardman/Lizardman_strike_sword_3.png", "Textures/Persons/Lizardman/Lizardman_injured_2.png", "Textures/Persons/Lizardman/Lizardman_defends_2.png",
 		"Textures/Persons/Lizardman/Lizardman_fall_3.png", "Textures/Persons/Lizardman/Lizardman_dead_1.png", 5, 5, 0, 2, 3));*/
 	persons.push_back(new Warrior("Person.vert", "Person.frag", "Textures/Persons/Warrior/warrior_stand_1.png", "Textures/Persons/Warrior/warrior_run_3.png",
 		"Textures/Persons/Warrior/warrior_strike_sword_4.png", "Textures/Persons/Warrior/warrior_injured_2.png", "Textures/Persons/Warrior/warrior_defends_2.png",
-		"Textures/Persons/Warrior/warrior_fall_3.png", "Textures/Persons/Warrior/warrior_dead_1.png", 8, 6, 0, 2, 2));
+		"Textures/Persons/Warrior/warrior_fall_2.png", "Textures/Persons/Warrior/warrior_dead_1.png", 8, 6, 0, 2, 2));
 	//persons[0]->selected = true;
 	//persons[1]->selected = true;
 	//persons[2]->selected = true;
 	//persons[0]->change_Direction(1);
 	//persons[2]->change_Direction(1);
 
-	Camera camera(glm::vec3(5.0f, -14.0f, 5.0f), 45.0f, 0.1f, 100.0f);
+	Camera camera(glm::vec3(7.0f, -12.0f, 5.0f), 45.0f, 0.1f, 100.0f);
 
 	Battle_Map battle_map;
 
@@ -139,6 +139,7 @@ int main()
 		battle.Draw_Mouse_Over_Tile(camera, battle_map, green);
 		battle.Draw_Walk_Area(camera, battle_map, persons);
 		battle.Melee_Attack(window, persons);
+		battle.Go_Out_From_Skirmish(window);
 
 		battle.Move(persons, window);
 

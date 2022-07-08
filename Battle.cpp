@@ -19,13 +19,13 @@ Battle::Battle(std::vector<Person*>&persons)
 	//Block of adding enemies in arr
 	persons.push_back(new Lizardman("Person.vert", "Person.frag", "Textures/Persons/Lizardman/Lizardman_stand_1.png", "Textures/Persons/Lizardman/Lizardman_run_3.png",
 		"Textures/Persons/Lizardman/Lizardman_strike_sword_3.png", "Textures/Persons/Lizardman/Lizardman_injured_2.png", "Textures/Persons/Lizardman/Lizardman_defends_2.png",
-		"Textures/Persons/Lizardman/Lizardman_fall_3.png", "Textures/Persons/Lizardman/Lizardman_dead_1.png", 5, 2, 0, 2, 3));
+		"Textures/Persons/Lizardman/Lizardman_fall_2.png", "Textures/Persons/Lizardman/Lizardman_dead_1.png", 5, 2, 0, 2, 3));
 	persons.push_back(new Lizardman("Person.vert", "Person.frag", "Textures/Persons/Lizardman/Lizardman_stand_1.png", "Textures/Persons/Lizardman/Lizardman_run_3.png",
 		"Textures/Persons/Lizardman/Lizardman_strike_sword_3.png", "Textures/Persons/Lizardman/Lizardman_injured_2.png", "Textures/Persons/Lizardman/Lizardman_defends_2.png",
-		"Textures/Persons/Lizardman/Lizardman_fall_3.png", "Textures/Persons/Lizardman/Lizardman_dead_1.png", 5, 4, 0, 2, 3));
+		"Textures/Persons/Lizardman/Lizardman_fall_2.png", "Textures/Persons/Lizardman/Lizardman_dead_1.png", 5, 4, 0, 2, 3));
 	persons.push_back(new Lizardman("Person.vert", "Person.frag", "Textures/Persons/Lizardman/Lizardman_stand_1.png", "Textures/Persons/Lizardman/Lizardman_run_3.png",
 		"Textures/Persons/Lizardman/Lizardman_strike_sword_3.png", "Textures/Persons/Lizardman/Lizardman_injured_2.png", "Textures/Persons/Lizardman/Lizardman_defends_2.png",
-		"Textures/Persons/Lizardman/Lizardman_fall_3.png", "Textures/Persons/Lizardman/Lizardman_dead_1.png", 5, 6, 0, 2, 3));
+		"Textures/Persons/Lizardman/Lizardman_fall_2.png", "Textures/Persons/Lizardman/Lizardman_dead_1.png", 5, 6, 0, 2, 3));
 
 	//Calculate initiative of person
 	for (int i = 0; i < persons.size(); i++)
@@ -34,7 +34,7 @@ Battle::Battle(std::vector<Person*>&persons)
 	}
 
 	//Sort arr of person by initiative
-	sort_arr(persons);
+	//sort_arr(persons);
 
 	/*for (int i = 0; i < persons.size(); i++)
 	{
@@ -48,8 +48,9 @@ Battle::Battle(std::vector<Person*>&persons)
 	end_of_battle = false;
 
 	//firts person selecting
-	person_selected = persons[count_person_in_phase];
+	//person_selected = persons[count_person_in_phase];
 	//person_selected = 0;
+	Make_Active_Person_Selected(persons[count_person_in_phase]);
 
 	is_anime_melee_atk_playing = false;
 
@@ -62,6 +63,15 @@ Battle::~Battle()
 	
 }
 
+void Battle::Make_Active_Person_Selected(Person * person)
+{
+	//Push to person_selected current or next person
+	person_selected = person;
+
+	//Lighter him if selected
+	person_selected->selected = true;
+}
+
 void Battle::Switch_to_Next_Step_Person(std::vector<Person*>& persons)
 {
 	//std::cout << count_person_steps << "!" << std::endl;
@@ -70,20 +80,19 @@ void Battle::Switch_to_Next_Step_Person(std::vector<Person*>& persons)
 	{
 		//Go to next step of person
 		count_person_steps++;
+		//std::cout << "!!!!" << std::endl;
 
 		//std::cout << count_person_steps << "!" << std::endl;
 		
 		//Select current person
-		person_selected = persons[count_person_in_phase];
-
-		//std::cout << person_selected->lifes_steps[count_person_steps] << std::endl;
+		Make_Active_Person_Selected(persons[count_person_in_phase]);
 	}
 }
 
 void Battle::Switch_to_Next_Person(std::vector<Person*>& persons)
 {
 	//End of steps of one person
-	if (count_person_steps == persons[count_person_in_phase]->size_lifes_steps)
+	if (count_person_steps >= persons[count_person_in_phase]->lifes_steps.size())
 	{
 		//Go to the next person
 		count_person_in_phase++;
@@ -97,7 +106,7 @@ void Battle::Switch_to_Next_Person(std::vector<Person*>& persons)
 		Clear_Person_Selected();
 
 		//Block of switch to next phase and start it from beginning
-		if (count_person_in_phase == persons.size())
+		if (count_person_in_phase >= persons.size())
 		{
 			//std::cout << count_person_in_phase << std::endl;
 
@@ -107,7 +116,8 @@ void Battle::Switch_to_Next_Person(std::vector<Person*>& persons)
 			count_person_steps = 0;
 
 			//Make active next person
-			person_selected = persons[count_person_in_phase];
+			//person_selected = persons[count_person_in_phase];
+			Make_Active_Person_Selected(persons[count_person_in_phase]);
 
 			//Increment counter of phases
 			count_phases++;
@@ -115,34 +125,11 @@ void Battle::Switch_to_Next_Person(std::vector<Person*>& persons)
 		}
 
 		//Make active next person
-		person_selected = persons[count_person_in_phase];
+		Make_Active_Person_Selected(persons[count_person_in_phase]);
 
 		//std::cout << count_person_in_phase << std::endl;
 	}
 }
-
-/*void Battle::Switch_to_Next_Phase(std::vector<Person*>& persons)
-{
-	//Reset count for next phase when all persons moved, phase starts again
-	if (count_person_in_phase == persons.size())
-	{
-		//std::cout << count_person_in_phase << std::endl;
-
-		count_person_in_phase = 0;
-
-		//Reset count steps of next person
-		count_person_steps = 0;
-
-		//Clear current person
-		Clear_Person_Selected();
-
-		//Make active next person
-		person_selected = persons[count_person_in_phase];
-
-		//Increment counter of phases
-		count_phases++;
-	}
-}*/
 
 void Battle::Click_Lmb_on_Top_interface(GLFWwindow* window, Camera& camera, std::vector<Person*>& persons)
 {
@@ -256,20 +243,144 @@ void Battle::Click_Lmb_on_Main_Screen(GLFWwindow* window, Camera& camera, std::v
 			glm::vec3 win = glm::unProject(glm::vec3(int(mouseX), HEIGHT_SCREEN - int(mouseY), _z), view, camera.projection, glm::vec4(0, 0, WIDTH_SCREEN, HEIGHT_SCREEN));
 			//std::cout << win.x << " " << win.y << " " << win.z << std::endl;
 
-			//Rounded data is here
+			//Rounded data is here, save into vars of class
 			x = float(int(win.x + 0.5f)); y = float(int(win.y - 0.5f)); z = float(int(win.z + 0.9f));
 			//std::cout << x << " " << y << " " << z << std::endl;
 		}
 	}
 }
 
+void Battle::Go_Out_From_Skirmish(GLFWwindow* window)
+{
+	/*if (person_selected)
+	{
+		std::cout << person_selected->skirmish.size() << std::endl;
+	}*/
+
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS && person_selected->skirmish.size() > 0)//если нажата ЛКМ
+	{
+		if (person_selected && battle_interface->go_flag && person_selected->walk_flag)
+		{
+			int skirmish_size = int(person_selected->skirmish.size());
+
+			//Look at the whole skirmish array
+			for (int i = 0; i < person_selected->skirmish.size(); i++)
+			{
+				//Block of changing view direction of striker
+				PERSON_DIRECTION from_what_side_is_striker = right;
+
+				//Remember from what side is opponent of striker
+				if (person_selected->x > person_selected->skirmish[i]->x)
+					from_what_side_is_striker = right;
+				if (person_selected->x < person_selected->skirmish[i]->x)
+					from_what_side_is_striker = left;
+
+				//Change direction of striker
+				if (person_selected->skirmish[i]->direction != from_what_side_is_striker)
+					person_selected->skirmish[i]->change_Direction(PERSON_DIRECTION(!person_selected->skirmish[i]->direction));
+
+
+
+
+				//Calculate Hit strike or not
+				//int atk_hot_or_not = rand() % 6 + 1 + person_selected->agility;
+				int atk_hit_or_not = rand() % 6 + 1 + person_selected->skirmish[i]->agility + 10;
+				//int defense_recap_or_not = rand() % 6 + 1 + person_selected->skirmish[i]->agility;
+				int defense_recap_or_not = rand() % 6 + 1 + person_selected->agility;
+
+				//Block of strike hit to person from enemy, Lowing lifes
+				if (atk_hit_or_not > defense_recap_or_not)
+				{
+					//Block of Lowing lifes (lifes_steps arr)
+					if (person_selected->lifes_steps.size() == 1)
+						//Lowing 1 life if there is operson have only one life
+						person_selected->lifes_steps.pop_back();
+					else if (person_selected->lifes_steps.size() > 1) 
+					{
+						//if sthength 1-2, lowing 1 life
+						if (person_selected->skirmish[i]->strength <= 2)
+						{
+							person_selected->lifes_steps.pop_back();
+							//std::cout << "1" << std::endl;
+						}
+						//if sthength 3-4, lowing 2 lifes
+						else if (person_selected->skirmish[i]->strength > 2 && person_selected->skirmish[i]->strength <= 4)
+						{
+							person_selected->lifes_steps.pop_back(); person_selected->lifes_steps.pop_back();
+							//std::cout << "2" << std::endl;
+						}
+						//if sthength 5-6, lowing 3 lifes
+						else if (person_selected->skirmish[i]->strength > 4 && person_selected->skirmish[i]->strength <= 6)
+						{
+							person_selected->lifes_steps.pop_back(); person_selected->lifes_steps.pop_back(); person_selected->lifes_steps.pop_back();
+						}
+						//...etc we must do bigger how much lifes lowing by the strength of person
+					}
+
+					//Change anime to injured
+					person_selected->Change_Enum_Anime(injured);
+
+					//battle_interface->go_flag = false;
+					//person_selected->walk_flag = false;
+
+					//This needs for last step out of person when he injured, if the count_person_steps is not artificially decremented, the person_selected will not take this step out
+					if (count_person_steps >= person_selected->lifes_steps.size())
+						count_person_steps--;
+				}
+
+				//Block of person die
+				if (person_selected->lifes_steps.size() == 0)
+				{
+					//Change anime to fall
+					person_selected->Change_Enum_Anime(dead);
+					
+					//Reset button flags
+					battle_interface->go_flag = false;
+					person_selected->walk_flag = false;
+
+					//std::cout << "!" << std::endl;
+				}
+
+
+
+
+				//Reset global_time for anime
+				global_time = 0;
+
+				//Change anime of striker to strike
+				person_selected->skirmish[i]->Change_Enum_Anime(strike_sword);
+
+				//Remove from skirmish arr of enemy current person_selected, look over all skirmish arr of enemy, are loking for same pointer like person_selected in it
+				for (int j = 0; j < person_selected->skirmish[i]->skirmish.size(); j++)
+					//If pointers of person_selected and himself in skirmish arr of his opponent are same
+					if (person_selected == person_selected->skirmish[i]->skirmish[j])
+					{
+						//Remove it
+						//std::cout << person_selected << " " << person_selected->skirmish[i]->skirmish[j];
+						person_selected->skirmish[i]->skirmish.erase(person_selected->skirmish[i]->skirmish.begin() + j);
+					}
+
+				//Remove from person skirmish arr his enemy
+				//person_selected->skirmish.erase(person_selected->skirmish.begin() + i);
+			}
+
+			//std::cout << person_selected->skirmish.size() << std::endl;
+			//Clear skirmish arr of person selected
+			for (int i = 0; i < skirmish_size; i++)
+			{
+				person_selected->skirmish.pop_back();
+			}
+		}
+	}
+}
+
 void Battle::Move(std::vector<Person*>& persons, GLFWwindow* window)
 {
-	//Move person if Battle_Interface flag active and person selected
-	if (person_selected && battle_interface->go_flag && person_selected->walk_flag)
+	//Move person if Battle_Interface flag active and person selected AND if he isn't injured when trying Go_Out_From_Skirmish
+	//if (person_selected && battle_interface->go_flag && person_selected->walk_flag)
+	if (person_selected && battle_interface->go_flag && person_selected->walk_flag && person_selected->anime != injured)
 	{
 		//Move person
-		//if (!person_selected->Move(person_selected->step[chk_walk_rng].x, -person_selected->step[chk_walk_rng].y, person_selected->step[chk_walk_rng].z))
 		if (person_selected->step[chk_walk_rng].x >= 0 && person_selected->step[chk_walk_rng].y <= 0 && person_selected->step[chk_walk_rng].z >= 0 &&
 			!person_selected->Move(person_selected->step[chk_walk_rng].x, -person_selected->step[chk_walk_rng].y, person_selected->step[chk_walk_rng].z))
 		{
@@ -284,10 +395,11 @@ void Battle::Move(std::vector<Person*>& persons, GLFWwindow* window)
 				//Check all arr of persons with same coords
 				for (int i = 0; i < persons.size(); i++)
 				{
-					//Check coords of current person with arr of person and that opposing person is enemy
+					//Check coords of current person with arr of person nearer 1 cel of him and that opposing person is enemy
 					if (persons[i]->x >= person_selected->x - 1 && persons[i]->x <= person_selected->x + 1 &&
 						persons[i]->y >= person_selected->y - 1 && persons[i]->y <= person_selected->y + 1 &&
-						persons[i]->person_type != person_selected->person_type)
+						persons[i]->person_type != person_selected->person_type &&
+						persons[i]->lifes_steps.size() > 0)
 					{
 						//std::cout << persons[i]->x << "-" << persons[i]->y << " " << person_selected->x << "-" << person_selected->y << std::endl;
 
@@ -298,7 +410,7 @@ void Battle::Move(std::vector<Person*>& persons, GLFWwindow* window)
 				}
 				//std::cout << person_selected->skirmish.size() << std::endl;
 
-				//If skirmish arr not empty clear current person, BUT we still can move one step
+				//Stop person_selected if there is enemy nearbuy, he will not move farer buy step arr 
 				if (person_selected->skirmish.size() > 0)
 					{
 						Clear_Person_Selected();
@@ -313,7 +425,11 @@ void Battle::Move(std::vector<Person*>& persons, GLFWwindow* window)
 			//end of walk
 			if (chk_walk_rng == person_selected->walk_range)
 			{
+				//Reset coord of LKM 
+				x = -1; y = 1;
+
 				Clear_Person_Selected();
+				//std::cout << "!!!!!!" << std::endl;
 			}
 		}
 	}
@@ -321,8 +437,6 @@ void Battle::Move(std::vector<Person*>& persons, GLFWwindow* window)
 
 void Battle::Melee_Attack(GLFWwindow* window, std::vector<Person*>& persons)
 {
-	//std::cout << x << " atk " << y << std::endl;
-
 	//Block of switch to next step or next person step if melee anime ended
 	if (person_selected && !person_selected->is_anime_cycle_playing && is_anime_melee_atk_playing)
 	{
@@ -348,19 +462,33 @@ void Battle::Melee_Attack(GLFWwindow* window, std::vector<Person*>& persons)
 			for (int i = 0; i < person_selected->skirmish.size(); i++)
 			{
 				//If coords are same with LKM
-				if (x == person_selected->skirmish[i]->x && y == person_selected->skirmish[i]->y)
+				if (x == person_selected->skirmish[i]->x && y == person_selected->skirmish[i]->y && person_selected->skirmish[i]->lifes_steps.size() > 0)
 				{
 
 					//Block of changing direction in the time of strike
+					//Start values
 					PERSON_DIRECTION from_what_side_is_enemy = left;
+					PERSON_DIRECTION from_what_side_is_striker = right;
 
+					//Remember where is the striker and his opponent
 					if (person_selected->x > person_selected->skirmish[i]->x)
+					{
 						from_what_side_is_enemy = left;
+						from_what_side_is_striker = right;
+					}
 					if (person_selected->x < person_selected->skirmish[i]->x)
+					{
 						from_what_side_is_enemy = right;
+						from_what_side_is_striker = left;
+					}
 
+					//Change direction of striker
 					if (person_selected->direction != from_what_side_is_enemy)
 						person_selected->change_Direction(PERSON_DIRECTION(!person_selected->direction));
+
+					//Change direction whom strike
+					if (person_selected->skirmish[i]->direction != from_what_side_is_striker)
+						person_selected->skirmish[i]->change_Direction(PERSON_DIRECTION(!person_selected->skirmish[i]->direction));
 
 					//Needs for melee atk anime play from beginning
 					global_time = 0;
@@ -376,7 +504,62 @@ void Battle::Melee_Attack(GLFWwindow* window, std::vector<Person*>& persons)
 
 					//ON anime flag of battle class
 					is_anime_melee_atk_playing = true;
-					break;
+
+					//Calculate Hit strike or not
+					//int atk_hot_or_not = rand() % 6 + 1 + person_selected->agility;
+					int atk_hit_or_not = rand() % 6 + 1 + person_selected->agility + 10;
+					//int defense_recap_or_not = rand() % 6 + 1 + person_selected->skirmish[i]->agility;
+					int defense_recap_or_not = rand() % 6 + 1 + person_selected->skirmish[i]->agility;
+
+					//Block of strike hit to opponent, Lowing lifes
+					if (atk_hit_or_not > defense_recap_or_not)
+					{
+						//Change anime to injured
+						person_selected->skirmish[i]->Change_Enum_Anime(injured);
+
+						//Block of Lowing lifes (lifes_steps arr)
+						if (person_selected->skirmish[i]->lifes_steps.size() == 1)
+							//Lowing 1 life if there is operson have only one life
+							person_selected->skirmish[i]->lifes_steps.pop_back();
+						else if (person_selected->skirmish[i]->lifes_steps.size() > 1)
+						{
+							//if sthength 1-2, lowing 1 life
+							if (person_selected->strength <= 2)
+								person_selected->skirmish[i]->lifes_steps.pop_back();
+							//if sthength 3-4, lowing 2 lifes
+							else if (person_selected->strength > 2 && person_selected->strength <= 4)
+							{
+								person_selected->skirmish[i]->lifes_steps.pop_back(); person_selected->skirmish[i]->lifes_steps.pop_back();
+							}
+							//if sthength 5-6, lowing 3 lifes
+							else if (person_selected->strength > 4 && person_selected->strength <= 6)
+							{
+								person_selected->skirmish[i]->lifes_steps.pop_back(); person_selected->skirmish[i]->lifes_steps.pop_back(); person_selected->skirmish[i]->lifes_steps.pop_back();
+							}
+							//...etc we must do bigger how much lifes lowing by the strength of person
+						}
+					}
+					//If not hit
+					else if (atk_hit_or_not <= defense_recap_or_not)
+						//Change anime to defends
+						person_selected->skirmish[i]->Change_Enum_Anime(defends);
+
+					//Block of person die and remove from ALL skirmish arrays
+					if (person_selected->skirmish[i]->lifes_steps.size() == 0)
+					{
+						//Change anime to fall, IMPORTANT fall anime must be smaler by frames then strike_sword, or person will stand after dead
+						person_selected->skirmish[i]->Change_Enum_Anime(fall);
+						//person_selected->skirmish[i]->Change_Enum_Anime(dead);
+
+						//Remove him from all skirmish arrays
+						for (int i = 0; i < persons.size(); i++)
+							for (int j = 0; j < persons[i]->skirmish.size(); j++)
+							{
+								if (persons[i]->skirmish[j]->lifes_steps.size() == 0)
+									persons[i]->skirmish.erase(persons[i]->skirmish.begin() + j);
+							}
+					}
+
 				}
 			}
 		}
@@ -389,6 +572,19 @@ void Battle::Melee_Attack(GLFWwindow* window, std::vector<Person*>& persons)
 			std::cout << person_selected->lifes_steps[i] << " ";
 		std::cout << std::endl;*/
 	}
+
+
+	/*if (person_selected->skirmish.size() > 0)
+	{
+		for (int j = 0; j < person_selected->lifes_steps.size(); j++)
+			std::cout << person_selected->lifes_steps[j] << "   ";
+		std::cout << " ----- ";
+		for (int j = 0; j < person_selected->skirmish[k]->lifes_steps.size(); j++)
+			std::cout << person_selected->skirmish[k]->lifes_steps[j] << " ! ";
+		std::cout << " : ATK - " << atk_hot_or_not << " : DEF - " << defense_recap_or_not;
+		std::cout << std::endl;
+	}*/
+	
 }
 
 void Battle::Skipping_Step(GLFWwindow* window)
@@ -400,7 +596,7 @@ void Battle::Skipping_Step(GLFWwindow* window)
 		skipping_step_flag = true;
 
 	//Block of skipping step
-	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS && skipping_step_flag)
+	if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS || (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) && skipping_step_flag)
 	{
 		//Skip step
 		Clear_Person_Selected();
